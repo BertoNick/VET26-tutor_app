@@ -308,9 +308,7 @@
   }
 
   .scheda-modulo {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: block;
     padding: 16px;
     border: 1px solid var(--colore-bordo);
     border-radius: 10px;
@@ -319,9 +317,35 @@
     transition: border-color 0.15s ease;
   }
   .scheda-modulo:hover { border-color: var(--colore-primario); }
+  .riga-scheda-modulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
   .scheda-modulo .nome-modulo { font-weight: 600; }
-  .scheda-modulo .stato-modulo { font-size: 12px; color: var(--colore-testo-secondario); }
-  .scheda-modulo .stato-modulo.completato { color: var(--colore-successo); }
+  .scheda-modulo .stato-modulo {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--colore-testo-secondario);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .scheda-modulo .stato-modulo.completato {
+    color: var(--colore-successo);
+    background: #E3F2EA;
+  }
+  .scheda-modulo .data-completamento-modulo {
+    font-size: 11px;
+    color: var(--colore-testo-secondario);
+    margin-top: 6px;
+  }
+  .scheda-modulo .motivo-bloccato {
+    font-size: 12px;
+    color: var(--colore-testo-secondario);
+    font-style: italic;
+    margin-top: 6px;
+  }
+  .scheda-modulo-completata { border-color: var(--colore-successo); }
   .scheda-modulo.scheda-modulo-disabilitata { cursor: default; }
   .scheda-modulo.scheda-modulo-disabilitata:hover { border-color: var(--colore-bordo); }
 
@@ -433,6 +457,89 @@
   .opzioni-risposta input[type="radio"]:focus-visible + label {
     outline: 2px solid var(--colore-accento);
     outline-offset: 2px;
+  }
+
+  /* Aree del questionario Finale: titolo + domanda introduttiva + voci */
+  .area-finale { margin-bottom: 8px; }
+  .titolo-area-finale {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--colore-primario-scuro);
+    margin: 28px 0 4px;
+  }
+  .area-finale:first-of-type .titolo-area-finale { margin-top: 8px; }
+  .intro-area-finale {
+    font-size: 13px;
+    color: var(--colore-testo-secondario);
+    margin: 0 0 16px;
+  }
+
+  /* Opzioni della rubrica VS/S/U: frasi intere, non pillole corte —
+     card verticali impilate, più leggibili di pillole orizzontali. */
+  .opzioni-rubrica {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .opzioni-rubrica input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .opzioni-rubrica label {
+    display: block;
+    padding: 10px 14px;
+    border: 1px solid var(--colore-bordo);
+    border-radius: 8px;
+    font-family: var(--font-corpo);
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--colore-testo-secondario);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .opzioni-rubrica input[type="radio"]:checked + label {
+    background: var(--colore-primario);
+    color: #fff;
+    border-color: var(--colore-primario);
+  }
+  .opzioni-rubrica input[type="radio"]:focus-visible + label {
+    outline: 2px solid var(--colore-accento);
+    outline-offset: 2px;
+  }
+
+  /* Domande guida della Relazione: testo di contesto fisso, non campi */
+  .guida-relazione {
+    background: var(--colore-sfondo);
+    border: 1px solid var(--colore-bordo);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+  .guida-relazione-titolo {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--colore-testo-secondario);
+    margin: 0 0 8px;
+  }
+  .guida-relazione-voce {
+    font-size: 13px;
+    color: var(--colore-testo);
+    margin: 0 0 8px;
+    padding-left: 14px;
+    position: relative;
+  }
+  .guida-relazione-voce:last-child { margin-bottom: 0; }
+  .guida-relazione-voce::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--colore-testo-secondario);
   }
 
   footer.piede-pagina {
@@ -608,6 +715,10 @@
       form_conferma_uscita: 'Voulez-vous vraiment quitter ? Les réponses saisies seront perdues.',
       form_etichetta_descrizione_mansione: 'Description du poste',
       form_etichetta_compiti_affidati: 'Tâches confiées au/à la stagiaire',
+      form_etichetta_relazione: 'Votre rapport',
+      form_guida_relazione_titolo: 'Points à aborder',
+      form_domanda_disponibilita_riospitare: 'Seriez-vous disponible pour accueillir une autre personne stagiaire Erasmus+ à l\'avenir ?',
+      modulo_richiede_prerequisito: 'Complétez d\'abord le formulaire {{MODULO}}.',
       form_bottone_invia: 'Envoyer',
       form_invio_in_corso: 'Envoi en cours…',
       form_errore_campi_obbligatori: 'Veuillez répondre à toutes les questions avant d\'envoyer.',
@@ -651,6 +762,10 @@
       form_conferma_uscita: 'Möchten Sie wirklich verlassen? Die eingegebenen Antworten gehen verloren.',
       form_etichetta_descrizione_mansione: 'Beschreibung der Tätigkeit',
       form_etichetta_compiti_affidati: 'Der Praktikumsperson übertragene Aufgaben',
+      form_etichetta_relazione: 'Ihr Bericht',
+      form_guida_relazione_titolo: 'Zu behandelnde Punkte',
+      form_domanda_disponibilita_riospitare: 'Wären Sie bereit, in Zukunft eine weitere Erasmus+ Praktikumsperson aufzunehmen?',
+      modulo_richiede_prerequisito: 'Füllen Sie zuerst das Formular {{MODULO}} aus.',
       form_bottone_invia: 'Absenden',
       form_invio_in_corso: 'Wird gesendet…',
       form_errore_campi_obbligatori: 'Bitte beantworten Sie alle Fragen, bevor Sie absenden.',
@@ -694,6 +809,10 @@
       form_conferma_uscita: 'Are you sure you want to leave? Your answers will be lost.',
       form_etichetta_descrizione_mansione: 'Job description',
       form_etichetta_compiti_affidati: 'Tasks assigned to the trainee',
+      form_etichetta_relazione: 'Your report',
+      form_guida_relazione_titolo: 'Points to address',
+      form_domanda_disponibilita_riospitare: 'Would you be willing to host another Erasmus+ trainee in the future?',
+      modulo_richiede_prerequisito: 'Complete the {{MODULO}} form first.',
       form_bottone_invia: 'Submit',
       form_invio_in_corso: 'Sending…',
       form_errore_campi_obbligatori: 'Please answer all the questions before submitting.',
@@ -737,6 +856,10 @@
       form_conferma_uscita: '¿Seguro que quieres salir? Las respuestas introducidas se perderán.',
       form_etichetta_descrizione_mansione: 'Descripción del puesto',
       form_etichetta_compiti_affidati: 'Tareas asignadas a la persona en prácticas',
+      form_etichetta_relazione: 'Su informe',
+      form_guida_relazione_titolo: 'Puntos a tratar',
+      form_domanda_disponibilita_riospitare: '¿Estaría dispuesto/a a acoger a otra persona en prácticas Erasmus+ en el futuro?',
+      modulo_richiede_prerequisito: 'Complete primero el formulario {{MODULO}}.',
       form_bottone_invia: 'Enviar',
       form_invio_in_corso: 'Enviando…',
       form_errore_campi_obbligatori: 'Responda a todas las preguntas antes de enviar.',
@@ -1033,11 +1156,38 @@
     Relazione: 'tappa_relazione',
   };
 
+  // Sequenza dei moduli: Finale richiede l'Intermedio completato,
+  // Relazione richiede il Finale completato — coerente col percorso a
+  // tappe già mostrato visivamente in cima alla schermata.
+  const PREREQUISITO_MODULO = {
+    Intermedio: null,
+    Finale: 'Intermedio',
+    Relazione: 'Finale',
+  };
+
+  /** Formatta una data/ora ISO nella lingua correntemente selezionata.
+   *  Ritorna stringa vuota se il valore è assente o non valido, così il
+   *  chiamante può semplicemente ometterla senza controlli aggiuntivi. */
+  function formattaDataOraCompletamento(isoString) {
+    if (!isoString) return '';
+    const data = new Date(isoString);
+    if (isNaN(data.getTime())) return '';
+    try {
+      return data.toLocaleDateString(linguaCorrente, { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+        ' · ' + data.toLocaleTimeString(linguaCorrente, { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return data.toLocaleDateString() + ' · ' + data.toLocaleTimeString();
+    }
+  }
+
   function mostraModuli(moduli) {
     const percorso = document.getElementById('percorso-moduli');
     const elenco = document.getElementById('elenco-schede-modulo');
     percorso.innerHTML = '';
     elenco.innerHTML = '';
+
+    const mappaModuli = {};
+    moduli.forEach(function (m) { mappaModuli[m.tipo] = m; });
 
     moduli.forEach(function (modulo) {
       const tappa = document.createElement('div');
@@ -1046,20 +1196,37 @@
         '<div class="pallino"></div><div class="etichetta-tappa">' + t(CHIAVE_TAPPA[modulo.tipo]) + '</div>';
       percorso.appendChild(tappa);
 
+      const prerequisito = PREREQUISITO_MODULO[modulo.tipo];
+      const bloccatoDaPrerequisito = prerequisito && !(mappaModuli[prerequisito] && mappaModuli[prerequisito].completato);
+
       const scheda = document.createElement('div');
       scheda.className = 'scheda-modulo';
-      scheda.innerHTML =
+
+      let html = '<div class="riga-scheda-modulo">' +
         '<span class="nome-modulo">' + t(CHIAVE_TAPPA[modulo.tipo]) + '</span>' +
         '<span class="stato-modulo' + (modulo.completato ? ' completato' : '') + '">' +
-        (modulo.completato ? t('stato_completato') : t('stato_da_compilare')) + '</span>';
-      // Un modulo già completato non è ripresentabile. Finale e Relazione:
-      // TODO, li colleghiamo nei prossimi passaggi — per ora restano solo
-      // visuali, come nel progetto precedente.
-      if (!modulo.completato && modulo.tipo === 'Intermedio') {
-        scheda.onclick = function () { apriModulo(modulo.tipo); };
-      } else if (!modulo.completato) {
-        scheda.classList.add('scheda-modulo-disabilitata');
+        (modulo.completato ? t('stato_completato') : t('stato_da_compilare')) + '</span>' +
+        '</div>';
+
+      if (modulo.completato) {
+        const dataFormattata = formattaDataOraCompletamento(modulo.completatoIl);
+        if (dataFormattata) html += '<div class="data-completamento-modulo">' + dataFormattata + '</div>';
+      } else if (bloccatoDaPrerequisito) {
+        html += '<div class="motivo-bloccato">' +
+          t('modulo_richiede_prerequisito').replace('{{MODULO}}', t(CHIAVE_TAPPA[prerequisito])) +
+          '</div>';
       }
+
+      scheda.innerHTML = html;
+
+      if (modulo.completato) {
+        scheda.classList.add('scheda-modulo-completata');
+      } else if (bloccatoDaPrerequisito) {
+        scheda.classList.add('scheda-modulo-disabilitata');
+      } else {
+        scheda.onclick = function () { apriModulo(modulo.tipo); };
+      }
+
       elenco.appendChild(scheda);
     });
 
@@ -1117,8 +1284,11 @@
 
     if (tipo === 'Intermedio') {
       document.getElementById('corpo-form-modulo').innerHTML = corpoFormIntermedioHtml();
+    } else if (tipo === 'Finale') {
+      document.getElementById('corpo-form-modulo').innerHTML = corpoFormFinaleHtml();
+    } else if (tipo === 'Relazione') {
+      document.getElementById('corpo-form-modulo').innerHTML = corpoFormRelazioneHtml();
     }
-    // Finale e Relazione: aggiunti nei prossimi passaggi.
 
     document.getElementById('bottone-invia-form').disabled = false;
     document.getElementById('bottone-invia-form').textContent = t('form_bottone_invia');
@@ -1208,6 +1378,166 @@
     return { valori: valori, mancanti: mancanti };
   }
 
+  // --- Finale ------------------------------------------------------
+
+  /** Risolve {{LINGUA}} nella domanda introduttiva dell'area Comunicazione,
+   *  stessa logica di testoDomandaComunicazione() lato server (Domande.gs):
+   *  nome della lingua di destinazione del tirocinio, scritto nella lingua
+   *  in cui il tutor sta compilando. studenteCorrente.linguaDefault è già
+   *  la lingua di destinazione (calcolata server-side da linguaDaDestinazione). */
+  function testoDomandaComunicazioneClient(areaComunicazione) {
+    const template = testoLocalizzato(areaComunicazione.domandaIntroduttiva);
+    const linguaDestinazione = studenteCorrente.linguaDefault;
+    const nomiLingua = datiDomandeCache.nomiLingua || {};
+    const nomeLingua = (nomiLingua[linguaDestinazione] && nomiLingua[linguaDestinazione][linguaCorrente]) || linguaDestinazione;
+    return template.replace('{{LINGUA}}', nomeLingua);
+  }
+
+  /** Una voce della rubrica Finale: frasi intere per opzione (VS/S/U),
+   *  card verticali invece delle pillole corte usate per l'Intermedio
+   *  (vedi .opzioni-rubrica in CSS — le frasi sono troppo lunghe per pillole). */
+  function voceRubricaHtml(voce) {
+    const nomeGruppo = 'radio_' + voce.id;
+    const chiaviRubrica = ['VS', 'S', 'U'];
+    const opzioniHtml = chiaviRubrica.map(function (chiave) {
+      const idInput = nomeGruppo + '_' + chiave;
+      return (
+        '<input type="radio" name="' + nomeGruppo + '" id="' + idInput + '" value="' + chiave + '">' +
+        '<label for="' + idInput + '">' + testoLocalizzato(voce.rubrica[chiave]) + '</label>'
+      );
+    }).join('');
+
+    return (
+      '<div class="domanda-chiusa" data-id-domanda="' + voce.id + '">' +
+        '<div class="domanda-testo">' + testoLocalizzato(voce.nome) + '</div>' +
+        '<div class="opzioni-rubrica">' + opzioniHtml + '</div>' +
+      '</div>'
+    );
+  }
+
+  function areaFinaleHtml(area) {
+    const introduttiva = area.id === 'comunicazione'
+      ? testoDomandaComunicazioneClient(area)
+      : testoLocalizzato(area.domandaIntroduttiva);
+
+    let html = '<div class="area-finale">' +
+      '<h2 class="titolo-area-finale">' + testoLocalizzato(area.nome) + '</h2>' +
+      '<p class="intro-area-finale">' + introduttiva + '</p>';
+
+    area.voci.forEach(function (voce) { html += voceRubricaHtml(voce); });
+
+    html += '</div>';
+    return html;
+  }
+
+  function corpoFormFinaleHtml() {
+    const dati = datiDomandeCache;
+    let html = campoTestoHtml('descrizione_mansione', t('form_etichetta_descrizione_mansione'));
+    html += campoTestoHtml('compiti_affidati', t('form_etichetta_compiti_affidati'));
+
+    dati.domandeFinale.aree.forEach(function (area) { html += areaFinaleHtml(area); });
+
+    return html;
+  }
+
+  /** Stessa forma di raccogliRisposteIntermedio: tutti i valori (anche
+   *  vuoti) più gli id mancanti, così ripristinaValoriForm/evidenziaErrori
+   *  (già generiche) funzionano identiche per questo modulo. */
+  function raccogliRisposteFinale() {
+    const valori = {};
+    const mancanti = [];
+
+    ['descrizione_mansione', 'compiti_affidati'].forEach(function (chiave) {
+      const valore = document.getElementById('campo-' + chiave).value.trim();
+      valori[chiave] = valore;
+      if (!valore) mancanti.push(chiave);
+    });
+
+    datiDomandeCache.domandeFinale.aree.forEach(function (area) {
+      area.voci.forEach(function (voce) {
+        const selezionato = document.querySelector('input[name="radio_' + voce.id + '"]:checked');
+        valori[voce.id] = selezionato ? selezionato.value : '';
+        if (!selezionato) mancanti.push(voce.id);
+      });
+    });
+
+    return { valori: valori, mancanti: mancanti };
+  }
+
+  // --- Relazione -----------------------------------------------------
+
+  /** Una domanda binaria Sì/No generica — riusa le traduzioni già
+   *  presenti in datiDomandeCache.opzioniIntermedio (si/no), senza
+   *  duplicare quei due testi in un dizionario a parte. */
+  function domandaSiNoHtml(idDomanda, testoDomanda) {
+    const nomeGruppo = 'radio_' + idDomanda;
+    const opzioni = datiDomandeCache.opzioniIntermedio;
+    const opzioniHtml = ['si', 'no'].map(function (chiave) {
+      const idInput = nomeGruppo + '_' + chiave;
+      return (
+        '<input type="radio" name="' + nomeGruppo + '" id="' + idInput + '" value="' + chiave + '">' +
+        '<label for="' + idInput + '">' + testoLocalizzato(opzioni[chiave]) + '</label>'
+      );
+    }).join('');
+
+    return (
+      '<div class="domanda-chiusa" data-id-domanda="' + idDomanda + '">' +
+        '<div class="domanda-testo">' + testoDomanda + '</div>' +
+        '<div class="opzioni-risposta">' + opzioniHtml + '</div>' +
+      '</div>'
+    );
+  }
+
+  function corpoFormRelazioneHtml() {
+    const dati = datiDomandeCache;
+    let html = campoTestoHtml('descrizione_mansione', t('form_etichetta_descrizione_mansione'));
+
+    html += '<div class="guida-relazione">' +
+      '<p class="guida-relazione-titolo">' + t('form_guida_relazione_titolo') + '</p>';
+    dati.domandeRelazione.forEach(function (guida) {
+      html += '<p class="guida-relazione-voce">' + testoLocalizzato(guida.testo) + '</p>';
+    });
+    html += '</div>';
+
+    html += campoTestoHtml('testo_relazione', t('form_etichetta_relazione'));
+    html += domandaSiNoHtml('disponibilita_riospitare', t('form_domanda_disponibilita_riospitare'));
+
+    return html;
+  }
+
+  /** A differenza degli altri due moduli, qui "mancante" include anche
+   *  il caso "troppo corto/lungo" per testo_relazione — la validazione
+   *  vera resta comunque server-side (_validaRisposteModulo in Api.gs),
+   *  questo è solo un feedback immediato per evitare un giro a vuoto. */
+  function raccogliRisposteRelazione() {
+    const valori = {};
+    const mancanti = [];
+
+    const descrizioneMansione = document.getElementById('campo-descrizione_mansione').value.trim();
+    valori.descrizione_mansione = descrizioneMansione;
+    if (!descrizioneMansione) mancanti.push('descrizione_mansione');
+
+    const testoRelazione = document.getElementById('campo-testo_relazione').value.trim();
+    valori.testo_relazione = testoRelazione;
+    if (testoRelazione.length < 100 || testoRelazione.length > 20000) mancanti.push('testo_relazione');
+
+    const dispRiospitare = document.querySelector('input[name="radio_disponibilita_riospitare"]:checked');
+    valori.disponibilita_riospitare = dispRiospitare ? dispRiospitare.value : '';
+    if (!dispRiospitare) mancanti.push('disponibilita_riospitare');
+
+    return { valori: valori, mancanti: mancanti };
+  }
+
+  /** Smista la raccolta valori in base al modulo aperto — usata sia per
+   *  l'invio sia per preservare le risposte quando si cambia lingua a
+   *  metà compilazione. */
+  function raccogliRisposteModuloCorrente() {
+    if (tipoModuloCorrente === 'Intermedio') return raccogliRisposteIntermedio();
+    if (tipoModuloCorrente === 'Finale') return raccogliRisposteFinale();
+    if (tipoModuloCorrente === 'Relazione') return raccogliRisposteRelazione();
+    return null;
+  }
+
   /** Rimette nel DOM i valori raccolti in precedenza — usata dopo aver
    *  ricostruito l'HTML del form per un cambio lingua, per non perdere
    *  le risposte già date dal tutor. */
@@ -1245,8 +1575,13 @@
     el.style.display = 'block';
   }
 
-  function inviaModuloIntermedio() {
-    const raccolta = raccogliRisposteIntermedio();
+  /** Un solo bottone "Invia" nella schermata generica: raccoglie le
+   *  risposte del modulo aperto (raccogliRisposteModuloCorrente, già
+   *  corretta per Intermedio/Finale/Relazione), valida, invia. */
+  function inviaModuloCorrente() {
+    const raccolta = raccogliRisposteModuloCorrente();
+    if (!raccolta) return;
+
     evidenziaErrori(raccolta.mancanti);
 
     if (raccolta.mancanti.length > 0) {
@@ -1259,10 +1594,11 @@
     bottone.textContent = t('form_invio_in_corso');
 
     const tokenSessione = localStorage.getItem('token_sessione');
+    const tipoInInvio = tipoModuloCorrente;
 
     chiamaApi('salvaRisposteModulo', {
       idStudente: studenteCorrente.idStudente,
-      tipoModulo: tipoModuloCorrente,
+      tipoModulo: tipoInInvio,
       risposte: raccolta.valori,
       linguaCompilazione: linguaCorrente,
     }, tokenSessione)
@@ -1285,15 +1621,6 @@
         }
         mostraErroreForm(t('errore_generico'));
       });
-  }
-
-  /** Smista l'invio in base al modulo aperto — un solo bottone "Invia" nella
-   *  schermata generica, il comportamento dipende da tipoModuloCorrente. */
-  function inviaModuloCorrente() {
-    if (tipoModuloCorrente === 'Intermedio') {
-      inviaModuloIntermedio();
-    }
-    // Finale e Relazione: aggiunti nei prossimi passaggi.
   }
 
   function formHaRisposteInserite() {
@@ -1406,9 +1733,7 @@
   document.querySelectorAll('.selettore-lingua button').forEach(function (bottone) {
     bottone.onclick = function () {
       const formAperto = tipoModuloCorrente && document.getElementById('schermata-form-modulo').classList.contains('attiva');
-      const valoriPrecedenti = formAperto && tipoModuloCorrente === 'Intermedio'
-        ? raccogliRisposteIntermedio().valori
-        : null;
+      const valoriPrecedenti = formAperto ? raccogliRisposteModuloCorrente().valori : null;
 
       impostaLinguaManuale(bottone.getAttribute('data-lingua'));
       mostraSalutoTutor();
