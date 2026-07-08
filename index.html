@@ -94,6 +94,16 @@
     color: #fff;
   }
 
+  /* Riga di cortesia mostrata solo nell'area autenticata — puro
+     rassicurazione visiva per il tutor, nessun ruolo di sicurezza. */
+  .saluto-tutor {
+    display: none;
+    padding: 0 20px 4px;
+    font-size: 12px;
+    color: var(--colore-testo-secondario);
+  }
+  .saluto-tutor.attivo { display: block; }
+
   /* Corpo centrale: card centrata, mobile-first */
   .corpo {
     flex: 1;
@@ -446,6 +456,8 @@
       </div>
     </div>
 
+    <div id="saluto-tutor" class="saluto-tutor"></div>
+
     <div class="corpo">
       <div class="scheda">
 
@@ -568,6 +580,7 @@
       accesso_etichetta_campo: 'Nom ou email',
       accesso_placeholder: 'ex. Marie Dubois ou marie.dubois@entreprise.fr',
       accesso_bottone_cerca: 'Continuer',
+      saluto_connesso: 'Connecté(e) en tant que',
       accesso_errore_non_trovato: 'Nous ne trouvons pas ce nom ou cet email dans notre liste. Vérifiez l\'orthographe.',
       candidati_titolo: 'Nous avons trouvé plusieurs résultats — sélectionnez votre nom :',
       invio_bottone: 'Envoyer le lien d\'accès à',
@@ -610,6 +623,7 @@
       accesso_etichetta_campo: 'Name oder E-Mail',
       accesso_placeholder: 'z. B. Marie Dubois oder marie.dubois@firma.de',
       accesso_bottone_cerca: 'Weiter',
+      saluto_connesso: 'Angemeldet als',
       accesso_errore_non_trovato: 'Wir finden diesen Namen oder diese E-Mail nicht in unserer Liste. Bitte überprüfen Sie die Eingabe.',
       candidati_titolo: 'Wir haben mehrere Treffer gefunden — wählen Sie Ihren Namen:',
       invio_bottone: 'Zugangslink senden an',
@@ -652,6 +666,7 @@
       accesso_etichetta_campo: 'Name or email',
       accesso_placeholder: 'e.g. Marie Dubois or marie.dubois@company.ie',
       accesso_bottone_cerca: 'Continue',
+      saluto_connesso: 'Signed in as',
       accesso_errore_non_trovato: 'We can\'t find this name or email in our list. Please check the spelling.',
       candidati_titolo: 'We found several matches — select your name:',
       invio_bottone: 'Send access link to',
@@ -694,6 +709,7 @@
       accesso_etichetta_campo: 'Nombre o email',
       accesso_placeholder: 'ej. Marie Dubois o marie.dubois@empresa.es',
       accesso_bottone_cerca: 'Continuar',
+      saluto_connesso: 'Conectado/a como',
       accesso_errore_non_trovato: 'No encontramos ese nombre o email en nuestra lista. Comprueba que esté bien escrito.',
       candidati_titolo: 'Hemos encontrado varios resultados — selecciona tu nombre:',
       invio_bottone: 'Enviar enlace de acceso a',
@@ -789,12 +805,13 @@
   // in Config.gs → URL_APP_PUBBLICO: sono due copie dello stesso
   // indirizzo in due progetti diversi, se cambia l'uno aggiorna l'altro.
   // ------------------------------------------------------------------
-  const URL_API = 'https://script.google.com/macros/s/AKfycbyCH3rhWKKi4RBDwPYzhuwtNRQVcXts-sVSavez6g4EiaWsQqMFYrbu40F2AYFuc5WX/exec';
+  const URL_API = 'INCOLLA_QUI_URL_APPS_SCRIPT_TERMINANTE_IN_/exec';
 
   // Stato applicativo in memoria (mai in sessionStorage/cookie — solo
   // il token di sessione vive in localStorage, per sopravvivere ai
   // refresh).
   let studenteCorrente = null;
+  let nomeTutorCorrente = null; // solo per il saluto di cortesia, nessun ruolo di sicurezza
   let emailInAttesaDiConferma = null;
   let datiDomandeCache = null;   // popolata alla prima apertura di un form, riusata per gli altri
   let tipoModuloCorrente = null; // 'Intermedio' | 'Finale' | 'Relazione', null se nessun form è aperto
@@ -850,6 +867,19 @@
 
   function mostraErroreGenerico() {
     mostraErrore('errore_generico');
+  }
+
+  /** Riga di cortesia "Connesso come [nome]", visibile in tutta l'area
+   *  autenticata — puro rassicurazione visiva, ricalcolata ad ogni
+   *  cambio lingua perché il testo davanti al nome è tradotto. */
+  function mostraSalutoTutor() {
+    const el = document.getElementById('saluto-tutor');
+    if (!nomeTutorCorrente) {
+      el.classList.remove('attivo');
+      return;
+    }
+    el.textContent = t('saluto_connesso') + ' ' + nomeTutorCorrente;
+    el.classList.add('attivo');
   }
 
   // ------------------------------------------------------------------
@@ -920,6 +950,8 @@
 
     chiamaApi('elencoStudentiPerTutor', {}, tokenSessione)
       .then(function (risultato) {
+        nomeTutorCorrente = risultato.nomeTutor || '';
+        mostraSalutoTutor();
         gestisciElencoStudenti(risultato.studenti);
       })
       .catch(function (errore) {
@@ -1379,6 +1411,7 @@
         : null;
 
       impostaLinguaManuale(bottone.getAttribute('data-lingua'));
+      mostraSalutoTutor();
 
       if (formAperto) {
         renderFormModulo(tipoModuloCorrente);
