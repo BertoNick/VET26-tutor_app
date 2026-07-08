@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erasmus+ VET · Tutor Evaluation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Palette: blu istituzionale + oro — richiama l'identità Erasmus+/UE
+       senza ricorrere ai default "da IA" (niente crema+terracotta, niente
+       dark mode acido). */
+    --colore-sfondo: #F5F6F8;
+    --colore-superficie: #FFFFFF;
+    --colore-primario: #1F3A5F;
+    --colore-primario-scuro: #14283F;
+    --colore-accento: #E0A63A;
+    --colore-accento-scuro: #C68A22;
+    --colore-testo: #1C2530;
+    --colore-testo-secondario: #5B6B7C;
+    --colore-bordo: #DDE2E8;
+    --colore-errore: #C0392B;
+    --colore-successo: #2E7D5B;
+
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-corpo: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    --raggio: 12px;
+    --ombra: 0 1px 3px rgba(20, 40, 63, 0.08), 0 8px 24px rgba(20, 40, 63, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--colore-sfondo);
+    color: var(--colore-testo);
+    font-family: var(--font-corpo);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .contenitore-app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Barra superiore: titolo + selettore lingua */
+  .barra-superiore {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .marchio {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--colore-primario);
+    letter-spacing: -0.01em;
+  }
+
+  .selettore-lingua {
+    display: flex;
+    gap: 4px;
+    background: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: 999px;
+    padding: 3px;
+  }
+
+  .selettore-lingua button {
+    border: none;
+    background: transparent;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-family: var(--font-corpo);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--colore-testo-secondario);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .selettore-lingua button.attivo {
+    background: var(--colore-primario);
+    color: #fff;
+  }
+
+  /* Corpo centrale: card centrata, mobile-first */
+  .corpo {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px 48px;
+  }
+
+  .scheda {
+    width: 100%;
+    max-width: 460px;
+    background: var(--colore-superficie);
+    border-radius: var(--raggio);
+    box-shadow: var(--ombra);
+    padding: 32px 28px;
+    margin-top: 24px;
+  }
+
+  .schermata { display: none; }
+  .schermata.attiva { display: block; }
+
+  h1.titolo-schermata {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--colore-primario-scuro);
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+
+  p.sottotitolo {
+    color: var(--colore-testo-secondario);
+    margin: 0 0 24px;
+    font-size: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--colore-testo);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"], input[type="email"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--colore-bordo);
+    border-radius: 8px;
+    font-family: var(--font-corpo);
+    font-size: 15px;
+    color: var(--colore-testo);
+    background: var(--colore-sfondo);
+    margin-bottom: 16px;
+  }
+
+  input[type="text"]:focus, input[type="email"]:focus,
+  button:focus-visible {
+    outline: 2px solid var(--colore-accento);
+    outline-offset: 2px;
+  }
+
+  .bottone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: var(--font-corpo);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+
+  .bottone-primario {
+    background: var(--colore-primario);
+    color: #fff;
+  }
+  .bottone-primario:hover { background: var(--colore-primario-scuro); }
+
+  .bottone-accento {
+    background: var(--colore-accento);
+    color: var(--colore-primario-scuro);
+  }
+  .bottone-accento:hover { background: var(--colore-accento-scuro); }
+
+  .bottone:active { transform: scale(0.98); }
+
+  .bottone-testo {
+    background: none;
+    border: none;
+    color: var(--colore-primario);
+    font-family: var(--font-corpo);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 0;
+    width: 100%;
+  }
+
+  .messaggio-errore {
+    background: #FBEAE8;
+    border: 1px solid #EFC3BE;
+    color: var(--colore-errore);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .messaggio-avviso {
+    background: #FEF6E8;
+    border: 1px solid #F2DBA6;
+    color: #8A6416;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  .elenco-candidati { list-style: none; padding: 0; margin: 0 0 16px; }
+  .elenco-candidati li {
+    padding: 12px 14px;
+    border: 1px solid var(--colore-bordo);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .elenco-candidati li:hover { border-color: var(--colore-primario); background: var(--colore-sfondo); }
+  .elenco-candidati .nome-candidato { font-weight: 600; }
+  .elenco-candidati .email-candidato { color: var(--colore-testo-secondario); font-size: 13px; }
+
+  /* Header con i dati del tirocinio, non fisso — scorre con la pagina */
+  .scheda-info-studente {
+    background: var(--colore-sfondo);
+    border: 1px solid var(--colore-bordo);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+  }
+  .riga-info-studente {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: 13px;
+  }
+  .riga-info-studente .etichetta-info {
+    color: var(--colore-testo-secondario);
+    font-weight: 600;
+  }
+  .riga-info-studente .valore-info {
+    color: var(--colore-testo);
+    text-align: right;
+  }
+
+  /* Elemento distintivo: percorso a tappe Intermedio → Finale → Relazione,
+     coerente col tema "mobilità" di Erasmus+. */
+  .percorso-moduli {
+    display: flex;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .percorso-moduli .tappa {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  .percorso-moduli .pallino {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--colore-bordo);
+    margin: 0 auto 8px;
+    border: 2px solid var(--colore-superficie);
+    box-shadow: 0 0 0 2px var(--colore-bordo);
+  }
+  .percorso-moduli .tappa.completata .pallino {
+    background: var(--colore-successo);
+    box-shadow: 0 0 0 2px var(--colore-successo);
+  }
+  .percorso-moduli .tappa::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background: var(--colore-bordo);
+    z-index: -1;
+  }
+  .percorso-moduli .tappa:first-child::before { display: none; }
+  .percorso-moduli .etichetta-tappa {
+    font-size: 11px;
+    color: var(--colore-testo-secondario);
+    font-weight: 600;
+  }
+
+  .scheda-modulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border: 1px solid var(--colore-bordo);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .scheda-modulo:hover { border-color: var(--colore-primario); }
+  .scheda-modulo .nome-modulo { font-weight: 600; }
+  .scheda-modulo .stato-modulo { font-size: 12px; color: var(--colore-testo-secondario); }
+  .scheda-modulo .stato-modulo.completato { color: var(--colore-successo); }
+  .scheda-modulo.scheda-modulo-disabilitata { cursor: default; }
+  .scheda-modulo.scheda-modulo-disabilitata:hover { border-color: var(--colore-bordo); }
+
+  .caricamento-spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--colore-bordo);
+    border-top-color: var(--colore-primario);
+    border-radius: 50%;
+    margin: 40px auto;
+    animation: ruota 0.8s linear infinite;
+  }
+  @keyframes ruota { to { transform: rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .caricamento-spinner { animation: none; }
+    .bottone { transition: none; }
+  }
+
+  /* Header dentro la schermata di un form modulo: bottone indietro + titolo */
+  .intestazione-form {
+    margin-bottom: 20px;
+  }
+  .bottone-indietro-form {
+    background: none;
+    border: none;
+    color: var(--colore-primario);
+    font-family: var(--font-corpo);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0 0 12px;
+    display: block;
+  }
+
+  /* Campo di testo libero (descrizione mansione, compiti affidati, relazione) */
+  .campo-form { margin-bottom: 24px; }
+  .campo-form .etichetta-campo {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--colore-testo);
+    margin-bottom: 6px;
+  }
+  textarea.campo-testo {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--colore-bordo);
+    border-radius: 8px;
+    font-family: var(--font-corpo);
+    font-size: 15px;
+    color: var(--colore-testo);
+    background: var(--colore-sfondo);
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.5;
+  }
+  textarea.campo-testo:focus {
+    outline: 2px solid var(--colore-accento);
+    outline-offset: 2px;
+  }
+  textarea.campo-testo.campo-in-errore {
+    border-color: var(--colore-errore);
+  }
+
+  /* Una domanda a risposta chiusa: testo + pillole selezionabili */
+  .domanda-chiusa {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--colore-bordo);
+  }
+  .domanda-chiusa:last-child { border-bottom: none; margin-bottom: 8px; }
+  .domanda-chiusa .domanda-testo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--colore-testo);
+    margin-bottom: 12px;
+  }
+  .domanda-chiusa.domanda-in-errore .domanda-testo { color: var(--colore-errore); }
+
+  .opzioni-risposta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .opzioni-risposta input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .opzioni-risposta label {
+    padding: 9px 16px;
+    border: 1px solid var(--colore-bordo);
+    border-radius: 999px;
+    font-family: var(--font-corpo);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--colore-testo-secondario);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    margin: 0;
+  }
+  .opzioni-risposta input[type="radio"]:checked + label {
+    background: var(--colore-primario);
+    color: #fff;
+    border-color: var(--colore-primario);
+  }
+  .opzioni-risposta input[type="radio"]:focus-visible + label {
+    outline: 2px solid var(--colore-accento);
+    outline-offset: 2px;
+  }
+
+  footer.piede-pagina {
+    text-align: center;
+    font-size: 12px;
+    color: var(--colore-testo-secondario);
+    padding: 16px;
+  }
+</style>
+</head>
+<body>
+  <div class="contenitore-app">
+
+    <div class="barra-superiore">
+      <div class="marchio" data-i18n="marchio">Erasmus+ VET</div>
+      <div class="selettore-lingua">
+        <button data-lingua="fr">FR</button>
+        <button data-lingua="de">DE</button>
+        <button data-lingua="en">EN</button>
+        <button data-lingua="es">ES</button>
+      </div>
+    </div>
+
+    <div class="corpo">
+      <div class="scheda">
+
+        <!-- Caricamento iniziale -->
+        <div id="schermata-caricamento" class="schermata attiva">
+          <div class="caricamento-spinner"></div>
+        </div>
+
+        <!-- Atterraggio dopo click sul magic link: il caricamento della
+             pagina non consuma MAI il token qui, solo il click sul
+             bottone lo fa (protezione anti-crawler). -->
+        <div id="schermata-atterraggio" class="schermata">
+          <h1 class="titolo-schermata" data-i18n="atterraggio_titolo">Welcome back</h1>
+          <p class="sottotitolo" data-i18n="atterraggio_testo">Click below to access your personal area.</p>
+          <button id="bottone-atterraggio" class="bottone bottone-primario" data-i18n="atterraggio_bottone">Go to my area</button>
+        </div>
+
+        <!-- Richiesta accesso (nessun login, solo nome/email) -->
+        <div id="schermata-richiesta-accesso" class="schermata">
+          <h1 class="titolo-schermata" data-i18n="accesso_titolo">Access your area</h1>
+          <p class="sottotitolo" data-i18n="accesso_sottotitolo">Enter your name or email to receive your access link.</p>
+          <label for="campo-ricerca-tutor" data-i18n="accesso_etichetta_campo">Name or email</label>
+          <input type="text" id="campo-ricerca-tutor" data-i18n-placeholder="accesso_placeholder" placeholder="">
+          <div id="errore-ricerca" class="messaggio-errore" style="display:none;"></div>
+          <ul id="elenco-candidati-tutor" class="elenco-candidati" style="display:none;"></ul>
+          <button id="bottone-cerca-tutor" class="bottone bottone-primario" data-i18n="accesso_bottone_cerca">Continue</button>
+          <button id="bottone-invia-link" class="bottone bottone-accento" style="display:none; margin-top:12px;"></button>
+        </div>
+
+        <!-- Attesa invio, con valvola "controlla spam" dopo 5 minuti -->
+        <div id="schermata-attesa-invio" class="schermata">
+          <h1 class="titolo-schermata" data-i18n="attesa_titolo">Check your email</h1>
+          <p class="sottotitolo" data-i18n="attesa_testo">We've sent you an access link. Open it on your device to continue.</p>
+          <div id="avviso-spam" class="messaggio-avviso" style="display:none;" data-i18n="attesa_avviso_spam"></div>
+          <button id="bottone-reinvia" class="bottone-testo" style="display:none;" data-i18n="attesa_bottone_reinvia"></button>
+        </div>
+
+        <!-- Selezione studente: mostrata solo se il tutor ne segue più di uno -->
+        <div id="schermata-selezione-studente" class="schermata">
+          <h1 class="titolo-schermata" data-i18n="selezione_studente_titolo">Which student would you like to evaluate?</h1>
+          <ul id="elenco-studenti" class="elenco-candidati"></ul>
+        </div>
+
+        <!-- Moduli: header studente (non fisso, scorre normalmente) + percorso
+             a tappe + schede (contenuto reale da collegare quando arriveranno
+             testi domanda / template) -->
+        <div id="schermata-moduli" class="schermata">
+          <h1 class="titolo-schermata" data-i18n="moduli_titolo">Evaluation forms</h1>
+
+          <div class="scheda-info-studente">
+            <div class="riga-info-studente">
+              <span class="etichetta-info" data-i18n="info_studente">Trainee</span>
+              <span id="info-nome-studente" class="valore-info"></span>
+            </div>
+            <div class="riga-info-studente">
+              <span class="etichetta-info" data-i18n="info_azienda">Company</span>
+              <span id="info-azienda-studente" class="valore-info"></span>
+            </div>
+            <div class="riga-info-studente">
+              <span class="etichetta-info" data-i18n="info_periodo">Internship period</span>
+              <span id="info-periodo-studente" class="valore-info"></span>
+            </div>
+          </div>
+
+          <div id="percorso-moduli" class="percorso-moduli"></div>
+          <div id="elenco-schede-modulo"></div>
+        </div>
+
+        <!-- Form di un singolo modulo (Intermedio/Finale/Relazione): stessa
+             schermata per tutti e 3, il contenuto di #corpo-form-modulo
+             viene costruito dinamicamente in JS in base al tipo.
+             Ri-renderizzato al volo se il tutor cambia lingua a metà
+             compilazione (il selettore lingua in alto resta attivo). -->
+        <div id="schermata-form-modulo" class="schermata">
+          <div class="intestazione-form">
+            <button id="bottone-indietro-form" class="bottone-indietro-form" data-i18n="form_bottone_indietro">← Back to forms</button>
+            <h1 id="titolo-form-modulo" class="titolo-schermata"></h1>
+          </div>
+          <div id="corpo-form-modulo"></div>
+          <div id="errore-form-modulo" class="messaggio-errore" style="display:none;"></div>
+          <button id="bottone-invia-form" class="bottone bottone-primario" data-i18n="form_bottone_invia">Submit</button>
+        </div>
+
+        <!-- Conferma dopo l'invio di un modulo -->
+        <div id="schermata-conferma-form" class="schermata">
+          <h1 class="titolo-schermata" data-i18n="form_conferma_titolo">Thank you!</h1>
+          <p class="sottotitolo" data-i18n="form_conferma_testo"></p>
+          <button id="bottone-torna-moduli" class="bottone bottone-primario" data-i18n="form_conferma_bottone"></button>
+        </div>
+
+        <!-- Errore generico (link non valido/già usato/problema di rete) -->
+        <div id="schermata-errore" class="schermata">
+          <h1 class="titolo-schermata" data-i18n="errore_generico">Something went wrong</h1>
+          <p id="testo-errore" class="sottotitolo"></p>
+        </div>
+
+      </div>
+    </div>
+
+    <footer class="piede-pagina" data-i18n="piede_pagina">Erasmus+ VET · Liceo Manzoni, Varese</footer>
+  </div>
+
+<script>
+  // ------------------------------------------------------------------
+  // TRADUZIONI — pattern: un oggetto per chiave UI, non stringhe
+  // sparse nel codice. Copertura attuale: solo le schermate già
+  // costruite (autenticazione, selezione studente, elenco moduli).
+  //
+  // ATTENZIONE: questi sono testi UI generici, NON hanno valore legale.
+  // Quando si aggiungeranno schermate con consenso privacy / firma
+  // elettronica, quei testi vanno tradotti con revisione madrelingua
+  // prima di andare in produzione — non lasciare alla traduzione
+  // automatica presente qui come fallback provvisorio.
+  // ------------------------------------------------------------------
+  const TRADUZIONI = {
+    fr: {
+      marchio: 'Erasmus+ VET · Évaluation Tuteur',
+      accesso_titolo: 'Accédez à votre espace',
+      accesso_sottotitolo: 'Saisissez votre nom ou votre email pour recevoir le lien d\'accès.',
+      accesso_etichetta_campo: 'Nom ou email',
+      accesso_placeholder: 'ex. Marie Dubois ou marie.dubois@entreprise.fr',
+      accesso_bottone_cerca: 'Continuer',
+      accesso_errore_non_trovato: 'Nous ne trouvons pas ce nom ou cet email dans notre liste. Vérifiez l\'orthographe.',
+      candidati_titolo: 'Nous avons trouvé plusieurs résultats — sélectionnez votre nom :',
+      invio_bottone: 'Envoyer le lien d\'accès à',
+      attesa_titolo: 'Consultez votre email',
+      attesa_testo: 'Nous vous avons envoyé un lien d\'accès. Ouvrez-le depuis votre appareil pour continuer.',
+      attesa_avviso_spam: 'Vous n\'avez rien reçu ? Vérifiez aussi votre dossier Spam/Courrier indésirable.',
+      attesa_bottone_reinvia: 'Envoyer à nouveau',
+      atterraggio_titolo: 'Bon retour',
+      atterraggio_testo: 'Cliquez ci-dessous pour accéder à votre espace personnel.',
+      atterraggio_bottone: 'Accéder à mon espace',
+      errore_link_non_valido: 'Ce lien n\'est pas valide.',
+      errore_link_gia_usato: 'Ce lien a déjà été utilisé. Demandez-en un nouveau depuis l\'écran d\'accueil.',
+      errore_generico: 'Une erreur est survenue. Réessayez dans un instant.',
+      selezione_studente_titolo: 'Quel étudiant souhaitez-vous évaluer ?',
+      moduli_titolo: 'Formulaires d\'évaluation',
+      info_studente: 'Étudiant(e)',
+      info_azienda: 'Entreprise',
+      info_periodo: 'Période de stage',
+      tappa_intermedio: 'Intermédiaire',
+      tappa_finale: 'Final',
+      tappa_relazione: 'Rapport',
+      stato_completato: 'Terminé',
+      stato_da_compilare: 'À compléter',
+      form_bottone_indietro: '← Retour aux formulaires',
+      form_conferma_uscita: 'Voulez-vous vraiment quitter ? Les réponses saisies seront perdues.',
+      form_etichetta_descrizione_mansione: 'Description du poste',
+      form_etichetta_compiti_affidati: 'Tâches confiées au/à la stagiaire',
+      form_bottone_invia: 'Envoyer',
+      form_invio_in_corso: 'Envoi en cours…',
+      form_errore_campi_obbligatori: 'Veuillez répondre à toutes les questions avant d\'envoyer.',
+      form_conferma_titolo: 'Merci !',
+      form_conferma_testo: 'Vos réponses ont été enregistrées avec succès.',
+      form_conferma_bottone: 'Retour aux formulaires',
+      piede_pagina: 'Erasmus+ VET · Liceo Manzoni, Varese',
+    },
+    de: {
+      marchio: 'Erasmus+ VET · Betreuer-Bewertung',
+      accesso_titolo: 'Zugang zu Ihrem Bereich',
+      accesso_sottotitolo: 'Geben Sie Ihren Namen oder Ihre E-Mail ein, um den Zugangslink zu erhalten.',
+      accesso_etichetta_campo: 'Name oder E-Mail',
+      accesso_placeholder: 'z. B. Marie Dubois oder marie.dubois@firma.de',
+      accesso_bottone_cerca: 'Weiter',
+      accesso_errore_non_trovato: 'Wir finden diesen Namen oder diese E-Mail nicht in unserer Liste. Bitte überprüfen Sie die Eingabe.',
+      candidati_titolo: 'Wir haben mehrere Treffer gefunden — wählen Sie Ihren Namen:',
+      invio_bottone: 'Zugangslink senden an',
+      attesa_titolo: 'Prüfen Sie Ihre E-Mail',
+      attesa_testo: 'Wir haben Ihnen einen Zugangslink gesendet. Öffnen Sie ihn auf Ihrem Gerät, um fortzufahren.',
+      attesa_avviso_spam: 'Nichts erhalten? Prüfen Sie auch Ihren Spam-/Junk-Ordner.',
+      attesa_bottone_reinvia: 'Erneut senden',
+      atterraggio_titolo: 'Willkommen zurück',
+      atterraggio_testo: 'Klicken Sie unten, um auf Ihren persönlichen Bereich zuzugreifen.',
+      atterraggio_bottone: 'Zu meinem Bereich',
+      errore_link_non_valido: 'Dieser Link ist ungültig.',
+      errore_link_gia_usato: 'Dieser Link wurde bereits verwendet. Fordern Sie über die Startseite einen neuen an.',
+      errore_generico: 'Etwas ist schiefgelaufen. Versuchen Sie es in Kürze erneut.',
+      selezione_studente_titolo: 'Welchen Studierenden möchten Sie bewerten?',
+      moduli_titolo: 'Bewertungsformulare',
+      info_studente: 'Praktikant/in',
+      info_azienda: 'Unternehmen',
+      info_periodo: 'Praktikumszeitraum',
+      tappa_intermedio: 'Zwischenbewertung',
+      tappa_finale: 'Abschlussbewertung',
+      tappa_relazione: 'Bericht',
+      stato_completato: 'Abgeschlossen',
+      stato_da_compilare: 'Ausstehend',
+      form_bottone_indietro: '← Zurück zu den Formularen',
+      form_conferma_uscita: 'Möchten Sie wirklich verlassen? Die eingegebenen Antworten gehen verloren.',
+      form_etichetta_descrizione_mansione: 'Beschreibung der Tätigkeit',
+      form_etichetta_compiti_affidati: 'Der Praktikumsperson übertragene Aufgaben',
+      form_bottone_invia: 'Absenden',
+      form_invio_in_corso: 'Wird gesendet…',
+      form_errore_campi_obbligatori: 'Bitte beantworten Sie alle Fragen, bevor Sie absenden.',
+      form_conferma_titolo: 'Vielen Dank!',
+      form_conferma_testo: 'Ihre Antworten wurden erfolgreich gespeichert.',
+      form_conferma_bottone: 'Zurück zu den Formularen',
+      piede_pagina: 'Erasmus+ VET · Liceo Manzoni, Varese',
+    },
+    en: {
+      marchio: 'Erasmus+ VET · Tutor Evaluation',
+      accesso_titolo: 'Access your area',
+      accesso_sottotitolo: 'Enter your name or email to receive your access link.',
+      accesso_etichetta_campo: 'Name or email',
+      accesso_placeholder: 'e.g. Marie Dubois or marie.dubois@company.ie',
+      accesso_bottone_cerca: 'Continue',
+      accesso_errore_non_trovato: 'We can\'t find this name or email in our list. Please check the spelling.',
+      candidati_titolo: 'We found several matches — select your name:',
+      invio_bottone: 'Send access link to',
+      attesa_titolo: 'Check your email',
+      attesa_testo: 'We\'ve sent you an access link. Open it on your device to continue.',
+      attesa_avviso_spam: 'Didn\'t receive anything? Check your Spam/Junk folder too.',
+      attesa_bottone_reinvia: 'Send again',
+      atterraggio_titolo: 'Welcome back',
+      atterraggio_testo: 'Click below to access your personal area.',
+      atterraggio_bottone: 'Go to my area',
+      errore_link_non_valido: 'This link is not valid.',
+      errore_link_gia_usato: 'This link has already been used. Request a new one from the start screen.',
+      errore_generico: 'Something went wrong. Please try again shortly.',
+      selezione_studente_titolo: 'Which student would you like to evaluate?',
+      moduli_titolo: 'Evaluation forms',
+      info_studente: 'Trainee',
+      info_azienda: 'Company',
+      info_periodo: 'Internship period',
+      tappa_intermedio: 'Midpoint',
+      tappa_finale: 'Final',
+      tappa_relazione: 'Report',
+      stato_completato: 'Completed',
+      stato_da_compilare: 'Pending',
+      form_bottone_indietro: '← Back to forms',
+      form_conferma_uscita: 'Are you sure you want to leave? Your answers will be lost.',
+      form_etichetta_descrizione_mansione: 'Job description',
+      form_etichetta_compiti_affidati: 'Tasks assigned to the trainee',
+      form_bottone_invia: 'Submit',
+      form_invio_in_corso: 'Sending…',
+      form_errore_campi_obbligatori: 'Please answer all the questions before submitting.',
+      form_conferma_titolo: 'Thank you!',
+      form_conferma_testo: 'Your answers have been saved successfully.',
+      form_conferma_bottone: 'Back to forms',
+      piede_pagina: 'Erasmus+ VET · Liceo Manzoni, Varese',
+    },
+    es: {
+      marchio: 'Erasmus+ VET · Evaluación del Tutor',
+      accesso_titolo: 'Accede a tu área',
+      accesso_sottotitolo: 'Introduce tu nombre o email para recibir el enlace de acceso.',
+      accesso_etichetta_campo: 'Nombre o email',
+      accesso_placeholder: 'ej. Marie Dubois o marie.dubois@empresa.es',
+      accesso_bottone_cerca: 'Continuar',
+      accesso_errore_non_trovato: 'No encontramos ese nombre o email en nuestra lista. Comprueba que esté bien escrito.',
+      candidati_titolo: 'Hemos encontrado varios resultados — selecciona tu nombre:',
+      invio_bottone: 'Enviar enlace de acceso a',
+      attesa_titolo: 'Revisa tu email',
+      attesa_testo: 'Te hemos enviado un enlace de acceso. Ábrelo desde tu dispositivo para continuar.',
+      attesa_avviso_spam: '¿No has recibido nada? Revisa también tu carpeta de Spam/Correo no deseado.',
+      attesa_bottone_reinvia: 'Enviar de nuevo',
+      atterraggio_titolo: 'Bienvenido/a de nuevo',
+      atterraggio_testo: 'Haz clic abajo para acceder a tu área personal.',
+      atterraggio_bottone: 'Ir a mi área',
+      errore_link_non_valido: 'Este enlace no es válido.',
+      errore_link_gia_usato: 'Este enlace ya se ha utilizado. Solicita uno nuevo desde la pantalla inicial.',
+      errore_generico: 'Algo salió mal. Inténtalo de nuevo en unos instantes.',
+      selezione_studente_titolo: '¿A qué estudiante quieres evaluar?',
+      moduli_titolo: 'Formularios de evaluación',
+      info_studente: 'Estudiante',
+      info_azienda: 'Empresa',
+      info_periodo: 'Periodo de prácticas',
+      tappa_intermedio: 'Intermedio',
+      tappa_finale: 'Final',
+      tappa_relazione: 'Informe',
+      stato_completato: 'Completado',
+      stato_da_compilare: 'Pendiente',
+      form_bottone_indietro: '← Volver a los formularios',
+      form_conferma_uscita: '¿Seguro que quieres salir? Las respuestas introducidas se perderán.',
+      form_etichetta_descrizione_mansione: 'Descripción del puesto',
+      form_etichetta_compiti_affidati: 'Tareas asignadas a la persona en prácticas',
+      form_bottone_invia: 'Enviar',
+      form_invio_in_corso: 'Enviando…',
+      form_errore_campi_obbligatori: 'Responda a todas las preguntas antes de enviar.',
+      form_conferma_titolo: '¡Gracias!',
+      form_conferma_testo: 'Sus respuestas se han guardado correctamente.',
+      form_conferma_bottone: 'Volver a los formularios',
+      piede_pagina: 'Erasmus+ VET · Liceo Manzoni, Varese',
+    },
+  };
+
+  const LINGUE_SUPPORTATE_CLIENT = ['fr', 'de', 'en', 'es'];
+  const LINGUA_FALLBACK_CLIENT = 'en';
+
+  let linguaCorrente = LINGUA_FALLBACK_CLIENT;
+  let linguaScelaManuale = false;
+
+  /** Applica la lingua a tutti gli elementi marcati data-i18n nel DOM. */
+  function applicaLingua(codice) {
+    if (!TRADUZIONI[codice]) codice = LINGUA_FALLBACK_CLIENT;
+    linguaCorrente = codice;
+
+    document.querySelectorAll('[data-i18n]').forEach(function (elemento) {
+      const chiave = elemento.getAttribute('data-i18n');
+      const testo = TRADUZIONI[codice][chiave];
+      if (testo !== undefined) elemento.textContent = testo;
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (elemento) {
+      const chiave = elemento.getAttribute('data-i18n-placeholder');
+      const testo = TRADUZIONI[codice][chiave];
+      if (testo !== undefined) elemento.setAttribute('placeholder', testo);
+    });
+
+    document.querySelectorAll('.selettore-lingua button').forEach(function (bottone) {
+      bottone.classList.toggle('attivo', bottone.getAttribute('data-lingua') === codice);
+    });
+
+    document.documentElement.setAttribute('lang', codice);
+  }
+
+  /** Testo puntuale per uso in JS (es. messaggi dinamici), non solo DOM statico. */
+  function t(chiave) {
+    return (TRADUZIONI[linguaCorrente] && TRADUZIONI[linguaCorrente][chiave]) || chiave;
+  }
+
+  function impostaLinguaManuale(codice) {
+    linguaScelaManuale = true;
+    applicaLingua(codice);
+  }
+
+  /** Rilevamento automatico dal browser, usato SOLO prima di conoscere lo studente. */
+  function rilevaLinguaBrowser() {
+    const lingua = (navigator.language || navigator.userLanguage || 'it').slice(0, 2).toLowerCase();
+    return LINGUE_SUPPORTATE_CLIENT.indexOf(lingua) !== -1 ? lingua : LINGUA_FALLBACK_CLIENT;
+  }
+
+  /** Chiamata dopo aver caricato i dati studente: sovrascrive SOLO se non c'è stata scelta manuale. */
+  function applicaLinguaDaStudente(linguaDefault) {
+    if (!linguaScelaManuale) applicaLingua(linguaDefault);
+  }
+</script>
+
+<script>
+  // ------------------------------------------------------------------
+  // URL_API — l'endpoint /exec di Apps Script. Stesso valore incollato
+  // in Config.gs → URL_APP_PUBBLICO: sono due copie dello stesso
+  // indirizzo in due progetti diversi, se cambia l'uno aggiorna l'altro.
+  // ------------------------------------------------------------------
+  const URL_API = 'https://script.google.com/macros/s/AKfycbyCH3rhWKKi4RBDwPYzhuwtNRQVcXts-sVSavez6g4EiaWsQqMFYrbu40F2AYFuc5WX/exec';
+
+  // Stato applicativo in memoria (mai in sessionStorage/cookie — solo
+  // il token di sessione vive in localStorage, per sopravvivere ai
+  // refresh).
+  let studenteCorrente = null;
+  let emailInAttesaDiConferma = null;
+  let datiDomandeCache = null;   // popolata alla prima apertura di un form, riusata per gli altri
+  let tipoModuloCorrente = null; // 'Intermedio' | 'Finale' | 'Relazione', null se nessun form è aperto
+
+  // ------------------------------------------------------------------
+  // Un solo punto di chiamata verso l'API Apps Script. Sempre POST,
+  // sempre "simple request" (Content-Type: text/plain, nessun header
+  // custom, nessuna credenziale) per non scatenare mai un preflight
+  // CORS che Apps Script non saprebbe gestire (non implementa OPTIONS).
+  // Nessun cookie viaggia cross-origin per default con fetch(), quindi
+  // la richiesta arriva a Google come anonima e il router multi-account
+  // /u/N/ — la causa di tutta questa migrazione — non si attiva mai.
+  //
+  // Risolve con i "data" della risposta se ok:true a livello di
+  // richiesta; rigetta con la stringa d'errore altrimenti (sessione
+  // non valida, azione sconosciuta, errore server...). Un fallimento
+  // di *business* interno all'azione (es. validazione modulo) NON
+  // rigetta: arriva come dato normale con il proprio {ok:false,...}
+  // interno, da controllare nel .then().
+  // ------------------------------------------------------------------
+  function chiamaApi(azione, payload, tokenSessione) {
+    return fetch(URL_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        token: tokenSessione || null,
+        action: azione,
+        payload: payload || {},
+      }),
+    })
+      .then(function (risposta) { return risposta.json(); })
+      .then(function (busta) {
+        if (!busta.ok) return Promise.reject(busta.error || 'errore_sconosciuto');
+        return busta.data;
+      });
+  }
+
+  function mostraSchermata(idSchermata) {
+    document.querySelectorAll('.schermata').forEach(function (el) { el.classList.remove('attiva'); });
+    document.getElementById(idSchermata).classList.add('attiva');
+  }
+
+  function mostraErrore(chiaveMotivo) {
+    const mappaMotivi = {
+      token_non_valido: 'errore_link_non_valido',
+      token_gia_usato: 'errore_link_gia_usato',
+      sessione_non_valida: 'errore_link_non_valido',
+    };
+    const chiaveTesto = mappaMotivi[chiaveMotivo] || 'errore_generico';
+    document.getElementById('testo-errore').textContent = t(chiaveTesto);
+    mostraSchermata('schermata-errore');
+  }
+
+  function mostraErroreGenerico() {
+    mostraErrore('errore_generico');
+  }
+
+  // ------------------------------------------------------------------
+  // Avvio: legge il token dal FRAMMENTO dell'URL (#token=...), mai
+  // dalla querystring. Il frammento non viene mai inviato al server
+  // che ospita questa pagina (requisito di minimizzazione dati): lo
+  // legge solo il browser, con window.location.hash. Non lo valida
+  // qui — la validazione scatta solo al click esplicito sul bottone
+  // della schermata di atterraggio (protezione anti-crawler).
+  // ------------------------------------------------------------------
+  function leggiTokenDaHash() {
+    const grezzo = window.location.hash || '';
+    const senzaCancelletto = grezzo.charAt(0) === '#' ? grezzo.slice(1) : grezzo;
+    const parametri = new URLSearchParams(senzaCancelletto);
+    return parametri.get('token');
+  }
+
+  function avvia() {
+    applicaLingua(rilevaLinguaBrowser());
+    avviaConToken(leggiTokenDaHash());
+  }
+
+  function avviaConToken(tokenLink) {
+    if (tokenLink) {
+      mostraSchermata('schermata-atterraggio');
+      document.getElementById('bottone-atterraggio').onclick = function () {
+        completaAutenticazioneConToken(tokenLink, document.getElementById('bottone-atterraggio'));
+      };
+      return;
+    }
+
+    const tokenSessioneSalvato = localStorage.getItem('token_sessione');
+    if (tokenSessioneSalvato) {
+      proseguiDopoAutenticazione();
+    } else {
+      mostraSchermata('schermata-richiesta-accesso');
+    }
+  }
+
+  /** Logica condivisa per completare l'autenticazione col token monouso:
+   *  lo valida, salva la sessione, prosegue. */
+  function completaAutenticazioneConToken(token, bottoneDaDisabilitare) {
+    if (bottoneDaDisabilitare) bottoneDaDisabilitare.disabled = true;
+
+    chiamaApi('validaTokenMonouso', { tokenMonouso: token })
+      .then(function (risultato) {
+        if (!risultato.ok) {
+          if (bottoneDaDisabilitare) bottoneDaDisabilitare.disabled = false;
+          mostraErrore(risultato.motivo);
+          return;
+        }
+        localStorage.setItem('token_sessione', risultato.tokenSessione);
+        // A differenza del vecchio iframe di HtmlService (cross-origin,
+        // history non toccabile), qui siamo sulla nostra pagina reale:
+        // questo ripulisce per davvero il token dalla barra indirizzi.
+        window.history.replaceState({}, '', window.location.pathname);
+        proseguiDopoAutenticazione();
+      })
+      .catch(function () {
+        if (bottoneDaDisabilitare) bottoneDaDisabilitare.disabled = false;
+        mostraErroreGenerico();
+      });
+  }
+
+  function proseguiDopoAutenticazione() {
+    mostraSchermata('schermata-caricamento');
+    const tokenSessione = localStorage.getItem('token_sessione');
+
+    chiamaApi('elencoStudentiPerTutor', {}, tokenSessione)
+      .then(function (risultato) {
+        gestisciElencoStudenti(risultato.studenti);
+      })
+      .catch(function (errore) {
+        if (errore === 'sessione_non_valida') {
+          localStorage.removeItem('token_sessione');
+          mostraSchermata('schermata-richiesta-accesso');
+          return;
+        }
+        mostraErroreGenerico();
+      });
+  }
+
+  function gestisciElencoStudenti(studenti) {
+    if (!studenti || studenti.length === 0) {
+      mostraErroreGenerico();
+      return;
+    }
+    if (studenti.length === 1) {
+      // Un solo studente seguito: si salta la schermata di selezione.
+      selezionaStudente(studenti[0]);
+      return;
+    }
+
+    const contenitore = document.getElementById('elenco-studenti');
+    contenitore.innerHTML = '';
+    studenti.forEach(function (studente) {
+      const voce = document.createElement('li');
+      voce.innerHTML =
+        '<div class="nome-candidato">' + (studente.nomeStudente || studente.idStudente) + '</div>' +
+        '<div class="email-candidato">' + studente.azienda + ' — ' + studente.destinazione + '</div>';
+      voce.onclick = function () { selezionaStudente(studente); };
+      contenitore.appendChild(voce);
+    });
+    mostraSchermata('schermata-selezione-studente');
+  }
+
+  function selezionaStudente(studente) {
+    studenteCorrente = studente;
+    applicaLinguaDaStudente(studente.linguaDefault);
+    popolaSchedaInfoStudente(studente);
+    caricaModuli();
+  }
+
+  /** Header non fisso, in cima alla schermata moduli, coi dati del tirocinio. */
+  function popolaSchedaInfoStudente(studente) {
+    document.getElementById('info-nome-studente').textContent = studente.nomeStudente || studente.idStudente;
+    document.getElementById('info-azienda-studente').textContent = studente.azienda + (studente.destinazione ? ' — ' + studente.destinazione : '');
+
+    const periodo = document.getElementById('info-periodo-studente');
+    if (studente.dataInizioTirocinio || studente.dataFineTirocinio) {
+      periodo.textContent = (studente.dataInizioTirocinio || '?') + ' – ' + (studente.dataFineTirocinio || '?');
+      periodo.parentElement.style.display = 'flex';
+    } else {
+      periodo.parentElement.style.display = 'none';
+    }
+  }
+
+  function caricaModuli() {
+    mostraSchermata('schermata-caricamento');
+    const tokenSessione = localStorage.getItem('token_sessione');
+
+    chiamaApi('statoModuliPerStudente', { idStudente: studenteCorrente.idStudente }, tokenSessione)
+      .then(function (risultato) {
+        mostraModuli(risultato.moduli);
+      })
+      .catch(function (errore) {
+        if (errore === 'sessione_non_valida') {
+          localStorage.removeItem('token_sessione');
+          mostraSchermata('schermata-richiesta-accesso');
+          return;
+        }
+        mostraErroreGenerico();
+      });
+  }
+
+  const CHIAVE_TAPPA = {
+    Intermedio: 'tappa_intermedio',
+    Finale: 'tappa_finale',
+    Relazione: 'tappa_relazione',
+  };
+
+  function mostraModuli(moduli) {
+    const percorso = document.getElementById('percorso-moduli');
+    const elenco = document.getElementById('elenco-schede-modulo');
+    percorso.innerHTML = '';
+    elenco.innerHTML = '';
+
+    moduli.forEach(function (modulo) {
+      const tappa = document.createElement('div');
+      tappa.className = 'tappa' + (modulo.completato ? ' completata' : '');
+      tappa.innerHTML =
+        '<div class="pallino"></div><div class="etichetta-tappa">' + t(CHIAVE_TAPPA[modulo.tipo]) + '</div>';
+      percorso.appendChild(tappa);
+
+      const scheda = document.createElement('div');
+      scheda.className = 'scheda-modulo';
+      scheda.innerHTML =
+        '<span class="nome-modulo">' + t(CHIAVE_TAPPA[modulo.tipo]) + '</span>' +
+        '<span class="stato-modulo' + (modulo.completato ? ' completato' : '') + '">' +
+        (modulo.completato ? t('stato_completato') : t('stato_da_compilare')) + '</span>';
+      // Un modulo già completato non è ripresentabile. Finale e Relazione:
+      // TODO, li colleghiamo nei prossimi passaggi — per ora restano solo
+      // visuali, come nel progetto precedente.
+      if (!modulo.completato && modulo.tipo === 'Intermedio') {
+        scheda.onclick = function () { apriModulo(modulo.tipo); };
+      } else if (!modulo.completato) {
+        scheda.classList.add('scheda-modulo-disabilitata');
+      }
+      elenco.appendChild(scheda);
+    });
+
+    mostraSchermata('schermata-moduli');
+  }
+
+  // ------------------------------------------------------------------
+  // Form dei moduli — apertura, costruzione dinamica, validazione, invio.
+  // Un'unica schermata (#schermata-form-modulo) riusata per tutti e 3 i
+  // tipi: #corpo-form-modulo viene svuotato e ricostruito ad ogni apertura
+  // e ad ogni cambio lingua manuale, se il form è quello aperto in quel
+  // momento (vedi il listener sul selettore-lingua più sotto).
+  // ------------------------------------------------------------------
+
+  /** Estrae il testo nella lingua corrente da un dizionario {fr,de,en,es}, con
+   *  lo stesso fallback usato lato server: lingua corrente → inglese. Non
+   *  c'è mai 'it' in questi dizionari (i tutor non sono mai italiani), quindi
+   *  un tutor che sceglie IT vede l'inglese qui, pur avendo il resto
+   *  dell'interfaccia in italiano — comportamento voluto. */
+  function testoLocalizzato(dizionario) {
+    if (!dizionario) return '';
+    return dizionario[linguaCorrente] || dizionario.en || '';
+  }
+
+  function apriModulo(tipo) {
+    tipoModuloCorrente = tipo;
+
+    if (datiDomandeCache) {
+      renderFormModulo(tipo);
+      return;
+    }
+
+    mostraSchermata('schermata-caricamento');
+    const tokenSessione = localStorage.getItem('token_sessione');
+
+    chiamaApi('datiDomande', {}, tokenSessione)
+      .then(function (risultato) {
+        datiDomandeCache = risultato;
+        renderFormModulo(tipo);
+      })
+      .catch(function (errore) {
+        if (errore === 'sessione_non_valida') {
+          mostraErrore(errore);
+          return;
+        }
+        mostraErroreGenerico();
+      });
+  }
+
+  function renderFormModulo(tipo) {
+    document.getElementById('titolo-form-modulo').textContent = t(CHIAVE_TAPPA[tipo]);
+    const errore = document.getElementById('errore-form-modulo');
+    errore.style.display = 'none';
+    errore.textContent = '';
+
+    if (tipo === 'Intermedio') {
+      document.getElementById('corpo-form-modulo').innerHTML = corpoFormIntermedioHtml();
+    }
+    // Finale e Relazione: aggiunti nei prossimi passaggi.
+
+    document.getElementById('bottone-invia-form').disabled = false;
+    document.getElementById('bottone-invia-form').textContent = t('form_bottone_invia');
+    mostraSchermata('schermata-form-modulo');
+  }
+
+  // --- Blocchi HTML riusabili per costruire un form ------------------
+
+  /** Campo di testo libero generico: label + textarea. L'id della textarea
+   *  è sempre 'campo-' + chiave, così raccoglierValori()/ripristinaValoriForm()
+   *  possono trovarlo senza bisogno di una mappa a parte. */
+  function campoTestoHtml(chiave, etichetta) {
+    return (
+      '<div class="campo-form">' +
+        '<label class="etichetta-campo" for="campo-' + chiave + '">' + etichetta + '</label>' +
+        '<textarea class="campo-testo" id="campo-' + chiave + '"></textarea>' +
+      '</div>'
+    );
+  }
+
+  /** Una domanda a risposta chiusa (Sì/In parte/No), pillole selezionabili.
+   *  name="radio_<id>" così più domande sullo stesso schermo non si accavallano. */
+  function domandaChiusaHtml(domanda, opzioni) {
+    const nomeGruppo = 'radio_' + domanda.id;
+    const chiaviOpzioni = ['si', 'in_parte', 'no'];
+    const opzioniHtml = chiaviOpzioni.map(function (chiave) {
+      const idInput = nomeGruppo + '_' + chiave;
+      return (
+        '<input type="radio" name="' + nomeGruppo + '" id="' + idInput + '" value="' + chiave + '">' +
+        '<label for="' + idInput + '">' + testoLocalizzato(opzioni[chiave]) + '</label>'
+      );
+    }).join('');
+
+    return (
+      '<div class="domanda-chiusa" data-id-domanda="' + domanda.id + '">' +
+        '<div class="domanda-testo">' + testoLocalizzato(domanda.testo) + '</div>' +
+        '<div class="opzioni-risposta">' + opzioniHtml + '</div>' +
+      '</div>'
+    );
+  }
+
+  // --- Intermedio ------------------------------------------------------
+
+  function corpoFormIntermedioHtml() {
+    const dati = datiDomandeCache;
+    let html = campoTestoHtml('descrizione_mansione', t('form_etichetta_descrizione_mansione'));
+
+    dati.domandeIntermedio.forEach(function (domanda) {
+      if (domanda.tipo === 'chiusa') {
+        html += domandaChiusaHtml(domanda, dati.opzioniIntermedio);
+      }
+    });
+
+    // La domanda aperta (consiglio di miglioramento) va in fondo, facoltativa.
+    const domandaAperta = dati.domandeIntermedio.find(function (d) { return d.tipo === 'aperta'; });
+    if (domandaAperta) {
+      html += campoTestoHtml(domandaAperta.id, testoLocalizzato(domandaAperta.testo));
+    }
+    return html;
+  }
+
+  /** Legge tutti i valori inseriti nel DOM per l'Intermedio. Ritorna sempre
+   *  tutti i valori (anche se vuoti) più l'elenco degli id mancanti — usata
+   *  sia per il salvataggio (submit) sia per preservare le risposte già
+   *  date quando si cambia lingua a metà compilazione (dove non si vuole
+   *  bloccare su "mancanti", si vuole solo leggere quello che c'è). */
+  function raccogliRisposteIntermedio() {
+    const valori = {};
+    const mancanti = [];
+
+    const descrizioneMansione = document.getElementById('campo-descrizione_mansione').value.trim();
+    valori.descrizione_mansione = descrizioneMansione;
+    if (!descrizioneMansione) mancanti.push('descrizione_mansione');
+
+    datiDomandeCache.domandeIntermedio.forEach(function (domanda) {
+      if (domanda.tipo === 'chiusa') {
+        const selezionato = document.querySelector('input[name="radio_' + domanda.id + '"]:checked');
+        valori[domanda.id] = selezionato ? selezionato.value : '';
+        if (!selezionato) mancanti.push(domanda.id);
+      } else {
+        const campo = document.getElementById('campo-' + domanda.id);
+        valori[domanda.id] = campo ? campo.value.trim() : '';
+        // Domanda aperta: facoltativa, non entra mai in "mancanti".
+      }
+    });
+
+    return { valori: valori, mancanti: mancanti };
+  }
+
+  /** Rimette nel DOM i valori raccolti in precedenza — usata dopo aver
+   *  ricostruito l'HTML del form per un cambio lingua, per non perdere
+   *  le risposte già date dal tutor. */
+  function ripristinaValoriForm(valori) {
+    Object.keys(valori).forEach(function (chiave) {
+      const valore = valori[chiave];
+      if (!valore) return;
+      const campoTesto = document.getElementById('campo-' + chiave);
+      if (campoTesto) {
+        campoTesto.value = valore;
+        return;
+      }
+      const inputRadio = document.querySelector('input[name="radio_' + chiave + '"][value="' + valore + '"]');
+      if (inputRadio) inputRadio.checked = true;
+    });
+  }
+
+  /** Evidenzia in rosso le domande/campi mancanti, ripulendo prima
+   *  eventuali evidenziazioni di un tentativo di invio precedente. */
+  function evidenziaErrori(idMancanti) {
+    document.querySelectorAll('.domanda-chiusa').forEach(function (el) { el.classList.remove('domanda-in-errore'); });
+    document.querySelectorAll('.campo-testo').forEach(function (el) { el.classList.remove('campo-in-errore'); });
+
+    idMancanti.forEach(function (id) {
+      const domanda = document.querySelector('.domanda-chiusa[data-id-domanda="' + id + '"]');
+      if (domanda) { domanda.classList.add('domanda-in-errore'); return; }
+      const campo = document.getElementById('campo-' + id);
+      if (campo) campo.classList.add('campo-in-errore');
+    });
+  }
+
+  function mostraErroreForm(testo) {
+    const el = document.getElementById('errore-form-modulo');
+    el.textContent = testo;
+    el.style.display = 'block';
+  }
+
+  function inviaModuloIntermedio() {
+    const raccolta = raccogliRisposteIntermedio();
+    evidenziaErrori(raccolta.mancanti);
+
+    if (raccolta.mancanti.length > 0) {
+      mostraErroreForm(t('form_errore_campi_obbligatori'));
+      return;
+    }
+
+    const bottone = document.getElementById('bottone-invia-form');
+    bottone.disabled = true;
+    bottone.textContent = t('form_invio_in_corso');
+
+    const tokenSessione = localStorage.getItem('token_sessione');
+
+    chiamaApi('salvaRisposteModulo', {
+      idStudente: studenteCorrente.idStudente,
+      tipoModulo: tipoModuloCorrente,
+      risposte: raccolta.valori,
+      linguaCompilazione: linguaCorrente,
+    }, tokenSessione)
+      .then(function (risultato) {
+        bottone.disabled = false;
+        bottone.textContent = t('form_bottone_invia');
+        if (!risultato.ok) {
+          mostraErroreForm(t('form_errore_campi_obbligatori'));
+          return;
+        }
+        tipoModuloCorrente = null;
+        mostraSchermata('schermata-conferma-form');
+      })
+      .catch(function (errore) {
+        bottone.disabled = false;
+        bottone.textContent = t('form_bottone_invia');
+        if (errore === 'sessione_non_valida') {
+          mostraErrore(errore);
+          return;
+        }
+        mostraErroreForm(t('errore_generico'));
+      });
+  }
+
+  /** Smista l'invio in base al modulo aperto — un solo bottone "Invia" nella
+   *  schermata generica, il comportamento dipende da tipoModuloCorrente. */
+  function inviaModuloCorrente() {
+    if (tipoModuloCorrente === 'Intermedio') {
+      inviaModuloIntermedio();
+    }
+    // Finale e Relazione: aggiunti nei prossimi passaggi.
+  }
+
+  function formHaRisposteInserite() {
+    const textareaConTesto = Array.prototype.some.call(
+      document.querySelectorAll('#corpo-form-modulo textarea'),
+      function (el) { return el.value.trim() !== ''; }
+    );
+    if (textareaConTesto) return true;
+    return document.querySelectorAll('#corpo-form-modulo input[type="radio"]:checked').length > 0;
+  }
+
+  document.getElementById('bottone-indietro-form').onclick = function () {
+    if (formHaRisposteInserite() && !window.confirm(t('form_conferma_uscita'))) return;
+    tipoModuloCorrente = null;
+    caricaModuli();
+  };
+
+  document.getElementById('bottone-invia-form').onclick = inviaModuloCorrente;
+
+  document.getElementById('bottone-torna-moduli').onclick = function () {
+    caricaModuli();
+  };
+
+  // ------------------------------------------------------------------
+  // Ricerca tutor (schermata iniziale) + invio magic link
+  // ------------------------------------------------------------------
+  function cercaTutorDaForm() {
+    const valore = document.getElementById('campo-ricerca-tutor').value;
+    document.getElementById('errore-ricerca').style.display = 'none';
+    document.getElementById('elenco-candidati-tutor').style.display = 'none';
+
+    chiamaApi('cercaTutor', { query: valore })
+      .then(gestisciRisultatoRicerca)
+      .catch(mostraErroreGenerico);
+  }
+
+  function gestisciRisultatoRicerca(risultato) {
+    if (risultato.stato === 'non_trovato') {
+      const errore = document.getElementById('errore-ricerca');
+      errore.textContent = t('accesso_errore_non_trovato');
+      errore.style.display = 'block';
+      return;
+    }
+
+    if (risultato.stato === 'trovato') {
+      predisponiInvioLink(risultato.tutor.email);
+      return;
+    }
+
+    // stato === 'multipli'
+    const contenitore = document.getElementById('elenco-candidati-tutor');
+    contenitore.innerHTML = '';
+    risultato.candidati.forEach(function (candidato) {
+      const voce = document.createElement('li');
+      voce.innerHTML =
+        '<div class="nome-candidato">' + candidato.nome + '</div>' +
+        '<div class="email-candidato">' + candidato.email + '</div>';
+      voce.onclick = function () { predisponiInvioLink(candidato.email); };
+      contenitore.appendChild(voce);
+    });
+    contenitore.style.display = 'block';
+  }
+
+  function predisponiInvioLink(email) {
+    emailInAttesaDiConferma = email;
+    const bottoneInvio = document.getElementById('bottone-invia-link');
+    bottoneInvio.textContent = t('invio_bottone') + ' ' + email;
+    bottoneInvio.style.display = 'block';
+    bottoneInvio.onclick = function () { inviaLinkAccesso(); };
+  }
+
+  function inviaLinkAccesso() {
+    const bottone = document.getElementById('bottone-invia-link');
+    bottone.disabled = true;
+
+    chiamaApi('richiediLinkAccesso', { email: emailInAttesaDiConferma, lingua: linguaCorrente })
+      .then(function (risultato) {
+        bottone.disabled = false;
+        if (!risultato.ok) {
+          mostraErroreGenerico();
+          return;
+        }
+        mostraSchermata('schermata-attesa-invio');
+        avviaTimerAvvisoSpam();
+      })
+      .catch(function () {
+        bottone.disabled = false;
+        mostraErroreGenerico();
+      });
+  }
+
+  function avviaTimerAvvisoSpam() {
+    document.getElementById('avviso-spam').style.display = 'none';
+    document.getElementById('bottone-reinvia').style.display = 'none';
+    setTimeout(function () {
+      document.getElementById('avviso-spam').style.display = 'block';
+      document.getElementById('bottone-reinvia').style.display = 'block';
+    }, 5 * 60 * 1000);
+  }
+
+  document.getElementById('bottone-reinvia').onclick = function () {
+    inviaLinkAccesso();
+  };
+
+  // Selettore lingua manuale. Se un form è aperto, applicaLingua() da sola
+  // non basta: i testi delle domande sono HTML costruito dinamicamente,
+  // non elementi data-i18n statici. Si raccolgono i valori già inseriti,
+  // si ricostruisce il form nella nuova lingua, poi si rimettono i valori
+  // — così il tutor non perde le risposte già date.
+  document.querySelectorAll('.selettore-lingua button').forEach(function (bottone) {
+    bottone.onclick = function () {
+      const formAperto = tipoModuloCorrente && document.getElementById('schermata-form-modulo').classList.contains('attiva');
+      const valoriPrecedenti = formAperto && tipoModuloCorrente === 'Intermedio'
+        ? raccogliRisposteIntermedio().valori
+        : null;
+
+      impostaLinguaManuale(bottone.getAttribute('data-lingua'));
+
+      if (formAperto) {
+        renderFormModulo(tipoModuloCorrente);
+        if (valoriPrecedenti) ripristinaValoriForm(valoriPrecedenti);
+      }
+    };
+  });
+
+  document.getElementById('bottone-cerca-tutor').onclick = cercaTutorDaForm;
+
+  document.addEventListener('DOMContentLoaded', avvia);
+</script>
+</body>
+</html>
