@@ -208,6 +208,32 @@
     width: 100%;
   }
 
+  /* Stato condiviso "richiesta in corso" — su bottoni E su righe/schede
+     cliccabili (li, div), quindi niente proprietà specifiche di <button>.
+     Il cursore "wait" + l'opacità ridotta bastano da soli come segnale su
+     righe/schede; il mini-spinner (aggiunto via JS solo sui bottoni
+     principali) rincalza il messaggio dove c'è spazio per un'icona. */
+  .in-caricamento {
+    opacity: 0.55;
+    pointer-events: none;
+    cursor: wait;
+  }
+  .mini-spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    margin-left: 8px;
+    vertical-align: -2px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    opacity: 0.85;
+    animation: ruota 0.6s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mini-spinner { animation: none; }
+  }
+
   .messaggio-errore {
     background: #FBEAE8;
     border: 1px solid #EFC3BE;
@@ -659,6 +685,10 @@
         <div id="schermata-errore" class="schermata">
           <h1 class="titolo-schermata" data-i18n="errore_generico">Something went wrong</h1>
           <p id="testo-errore" class="sottotitolo"></p>
+          <!-- Mostrato solo per "token già usato": un tap per farsi
+               rimandare un link nuovo, senza ripartire dalla ricerca del
+               proprio nome — vedi mostraErrore() in JS. -->
+          <button id="bottone-recupero-errore" class="bottone bottone-primario" style="display:none;"></button>
         </div>
 
       </div>
@@ -972,12 +1002,53 @@
       });
   }
 
+  // ------------------------------------------------------------------
+  // Protezione anti-doppio-tap: su mobile, con connessioni lente, il
+  // rischio concreto è che il tutor tocchi due volte pensando che il
+  // primo tap non sia partito. Un solo meccanismo condiviso invece di
+  // ripeterlo ad ogni punto che chiama l'API: disabilita l'elemento
+  // toccato (bottone O riga/scheda cliccabile — .disabled esiste solo
+  // sui <button>, .in-caricamento funziona su entrambi), lo ripristina
+  // sempre al termine. Se l'elemento è già "in caricamento" un secondo
+  // tap non fa nulla, invece di partire una seconda richiesta parallela.
+  // ------------------------------------------------------------------
+  function eseguiConCaricamento(elemento, promiseFn, opzioni) {
+    if (elemento.classList.contains('in-caricamento')) return;
+    opzioni = opzioni || {};
+
+    elemento.classList.add('in-caricamento');
+    if ('disabled' in elemento) elemento.disabled = true;
+
+    let spinner = null;
+    if (opzioni.spinner) {
+      spinner = document.createElement('span');
+      spinner.className = 'mini-spinner';
+      elemento.appendChild(spinner);
+    }
+
+    promiseFn().finally(function () {
+      elemento.classList.remove('in-caricamento');
+      if ('disabled' in elemento) elemento.disabled = false;
+      if (spinner && spinner.parentNode) spinner.parentNode.removeChild(spinner);
+    });
+  }
+
   function mostraSchermata(idSchermata) {
     document.querySelectorAll('.schermata').forEach(function (el) { el.classList.remove('attiva'); });
     document.getElementById(idSchermata).classList.add('attiva');
   }
 
-  function mostraErrore(chiaveMotivo) {
+  /**
+   * @param {string} chiaveMotivo
+   * @param {string} [emailRecupero] Solo per 'token_gia_usato': l'email a
+   *   cui era destinato il link ormai consumato (il server la restituisce
+   *   anche in caso di fallimento — non è un dato nuovo, chi ha ricevuto
+   *   quel link sa già a quale indirizzo è stato mandato). Se presente,
+   *   mostra un bottone "Invia un nuovo link a ..." per un recupero in un
+   *   tap, invece di rimandare il tutor daccapo alla ricerca del proprio
+   *   nome — è la causa più comune di confusione multi-dispositivo.
+   */
+  function mostraErrore(chiaveMotivo, emailRecupero) {
     const mappaMotivi = {
       token_non_valido: 'errore_link_non_valido',
       token_gia_usato: 'errore_link_gia_usato',
@@ -985,6 +1056,20 @@
     };
     const chiaveTesto = mappaMotivi[chiaveMotivo] || 'errore_generico';
     document.getElementById('testo-errore').textContent = t(chiaveTesto);
+
+    const bottoneRecupero = document.getElementById('bottone-recupero-errore');
+    if (chiaveMotivo === 'token_gia_usato' && emailRecupero) {
+      bottoneRecupero.textContent = t('invio_bottone') + ' ' + emailRecupero;
+      bottoneRecupero.style.display = 'block';
+      bottoneRecupero.onclick = function () {
+        emailInAttesaDiConferma = emailRecupero;
+        inviaLinkAccesso(bottoneRecupero);
+      };
+    } else {
+      bottoneRecupero.style.display = 'none';
+      bottoneRecupero.onclick = null;
+    }
+
     mostraSchermata('schermata-errore');
   }
 
@@ -1025,52 +1110,77 @@
     avviaConToken(leggiTokenDaHash());
   }
 
+  /**
+   * Un dispositivo con una sessione già salvata la usa SEMPRE al posto
+   * del token del link, anche se il link è presente nell'URL — è lo
+   * scenario più comune di "casino multi-dispositivo" segnalato: si
+   * riapre la stessa mail sullo stesso telefono pensando che il primo
+   * tap non sia partito, e il token è già stato consumato da quel primo
+   * tap. Con questa preferenza, riaprire il proprio link su un
+   * dispositivo dove si è già autenticati porta dritti alla propria
+   * area, senza errori. Se la sessione risultasse comunque non più
+   * valida (dispositivo nuovo con un vecchio token_sessione non più
+   * riconosciuto dal server, caso raro), si ripiega sul token del link
+   * se presente, invece di arenarsi.
+   */
   function avviaConToken(tokenLink) {
-    if (tokenLink) {
-      mostraSchermata('schermata-atterraggio');
-      document.getElementById('bottone-atterraggio').onclick = function () {
-        completaAutenticazioneConToken(tokenLink, document.getElementById('bottone-atterraggio'));
-      };
+    const tokenSessioneSalvato = localStorage.getItem('token_sessione');
+
+    if (tokenSessioneSalvato) {
+      mostraSchermata('schermata-caricamento');
+      if (tokenLink) window.history.replaceState({}, '', window.location.pathname);
+      caricaAreaTutor(tokenSessioneSalvato, function () {
+        if (tokenLink) {
+          mostraAtterraggio(tokenLink);
+        } else {
+          mostraSchermata('schermata-richiesta-accesso');
+        }
+      });
       return;
     }
 
-    const tokenSessioneSalvato = localStorage.getItem('token_sessione');
-    if (tokenSessioneSalvato) {
-      proseguiDopoAutenticazione();
-    } else {
-      mostraSchermata('schermata-richiesta-accesso');
+    if (tokenLink) {
+      mostraAtterraggio(tokenLink);
+      return;
     }
+
+    mostraSchermata('schermata-richiesta-accesso');
+  }
+
+  function mostraAtterraggio(tokenLink) {
+    mostraSchermata('schermata-atterraggio');
+    document.getElementById('bottone-atterraggio').onclick = function () {
+      completaAutenticazioneConToken(tokenLink, document.getElementById('bottone-atterraggio'));
+    };
   }
 
   /** Logica condivisa per completare l'autenticazione col token monouso:
    *  lo valida, salva la sessione, prosegue. */
   function completaAutenticazioneConToken(token, bottoneDaDisabilitare) {
-    if (bottoneDaDisabilitare) bottoneDaDisabilitare.disabled = true;
-
-    chiamaApi('validaTokenMonouso', { tokenMonouso: token })
-      .then(function (risultato) {
-        if (!risultato.ok) {
-          if (bottoneDaDisabilitare) bottoneDaDisabilitare.disabled = false;
-          mostraErrore(risultato.motivo);
-          return;
-        }
-        localStorage.setItem('token_sessione', risultato.tokenSessione);
-        // A differenza del vecchio iframe di HtmlService (cross-origin,
-        // history non toccabile), qui siamo sulla nostra pagina reale:
-        // questo ripulisce per davvero il token dalla barra indirizzi.
-        window.history.replaceState({}, '', window.location.pathname);
-        proseguiDopoAutenticazione();
-      })
-      .catch(function () {
-        if (bottoneDaDisabilitare) bottoneDaDisabilitare.disabled = false;
-        mostraErroreGenerico();
-      });
+    eseguiConCaricamento(bottoneDaDisabilitare, function () {
+      return chiamaApi('validaTokenMonouso', { tokenMonouso: token })
+        .then(function (risultato) {
+          if (!risultato.ok) {
+            mostraErrore(risultato.motivo, risultato.email);
+            return;
+          }
+          localStorage.setItem('token_sessione', risultato.tokenSessione);
+          // A differenza del vecchio iframe di HtmlService (cross-origin,
+          // history non toccabile), qui siamo sulla nostra pagina reale:
+          // questo ripulisce per davvero il token dalla barra indirizzi.
+          window.history.replaceState({}, '', window.location.pathname);
+          proseguiDopoAutenticazione();
+        })
+        .catch(function () { mostraErroreGenerico(); });
+    }, { spinner: true });
   }
 
-  function proseguiDopoAutenticazione() {
-    mostraSchermata('schermata-caricamento');
-    const tokenSessione = localStorage.getItem('token_sessione');
-
+  /** Nucleo condiviso tra "riprendo una sessione già salvata" e "ho
+   *  appena consumato un token monouso": carica gli studenti del tutor
+   *  e mostra la schermata giusta. onSessioneNonValida lascia ai due
+   *  punti di ingresso reagire in modo diverso quando la sessione
+   *  risulta invalida (v. avviaConToken sopra). */
+  function caricaAreaTutor(tokenSessione, onSessioneNonValida) {
     chiamaApi('elencoStudentiPerTutor', {}, tokenSessione)
       .then(function (risultato) {
         nomeTutorCorrente = risultato.nomeTutor || '';
@@ -1080,11 +1190,19 @@
       .catch(function (errore) {
         if (errore === 'sessione_non_valida') {
           localStorage.removeItem('token_sessione');
-          mostraSchermata('schermata-richiesta-accesso');
+          onSessioneNonValida();
           return;
         }
         mostraErroreGenerico();
       });
+  }
+
+  function proseguiDopoAutenticazione() {
+    mostraSchermata('schermata-caricamento');
+    const tokenSessione = localStorage.getItem('token_sessione');
+    caricaAreaTutor(tokenSessione, function () {
+      mostraSchermata('schermata-richiesta-accesso');
+    });
   }
 
   function gestisciElencoStudenti(studenti) {
@@ -1105,7 +1223,9 @@
       voce.innerHTML =
         '<div class="nome-candidato">' + (studente.nomeStudente || studente.idStudente) + '</div>' +
         '<div class="email-candidato">' + studente.azienda + ' — ' + studente.destinazione + '</div>';
-      voce.onclick = function () { selezionaStudente(studente); };
+      voce.onclick = function () {
+        eseguiConCaricamento(voce, function () { return selezionaStudente(studente); });
+      };
       contenitore.appendChild(voce);
     });
     mostraSchermata('schermata-selezione-studente');
@@ -1115,7 +1235,7 @@
     studenteCorrente = studente;
     applicaLinguaDaStudente(studente.linguaDefault);
     popolaSchedaInfoStudente(studente);
-    caricaModuli();
+    return caricaModuli();
   }
 
   /** Header non fisso, in cima alla schermata moduli, coi dati del tirocinio. */
@@ -1136,7 +1256,7 @@
     mostraSchermata('schermata-caricamento');
     const tokenSessione = localStorage.getItem('token_sessione');
 
-    chiamaApi('statoModuliPerStudente', { idStudente: studenteCorrente.idStudente }, tokenSessione)
+    return chiamaApi('statoModuliPerStudente', { idStudente: studenteCorrente.idStudente }, tokenSessione)
       .then(function (risultato) {
         mostraModuli(risultato.moduli);
       })
@@ -1224,7 +1344,7 @@
       } else if (bloccatoDaPrerequisito) {
         scheda.classList.add('scheda-modulo-disabilitata');
       } else {
-        scheda.onclick = function () { apriModulo(modulo.tipo); };
+        scheda.onclick = function () { eseguiConCaricamento(scheda, function () { return apriModulo(modulo.tipo); }); };
       }
 
       elenco.appendChild(scheda);
@@ -1251,18 +1371,23 @@
     return dizionario[linguaCorrente] || dizionario.en || '';
   }
 
+  /** Restituisce sempre una promise (anche nel caso "già in cache",
+   *  risolta subito) così il chiamante può usare eseguiConCaricamento in
+   *  modo uniforme. Niente più schermata di caricamento a tutto schermo
+   *  qui: l'apertura di un modulo (il payload più pesante dell'app,
+   *  ~27KB di testi domande) resta sulla schermata moduli con un
+   *  mini-caricamento sulla scheda toccata — meno invasivo su mobile. */
   function apriModulo(tipo) {
     tipoModuloCorrente = tipo;
 
     if (datiDomandeCache) {
       renderFormModulo(tipo);
-      return;
+      return Promise.resolve();
     }
 
-    mostraSchermata('schermata-caricamento');
     const tokenSessione = localStorage.getItem('token_sessione');
 
-    chiamaApi('datiDomande', {}, tokenSessione)
+    return chiamaApi('datiDomande', {}, tokenSessione)
       .then(function (risultato) {
         datiDomandeCache = risultato;
         renderFormModulo(tipo);
@@ -1648,13 +1773,16 @@
   // Ricerca tutor (schermata iniziale) + invio magic link
   // ------------------------------------------------------------------
   function cercaTutorDaForm() {
+    const bottone = document.getElementById('bottone-cerca-tutor');
     const valore = document.getElementById('campo-ricerca-tutor').value;
     document.getElementById('errore-ricerca').style.display = 'none';
     document.getElementById('elenco-candidati-tutor').style.display = 'none';
 
-    chiamaApi('cercaTutor', { query: valore })
-      .then(gestisciRisultatoRicerca)
-      .catch(mostraErroreGenerico);
+    eseguiConCaricamento(bottone, function () {
+      return chiamaApi('cercaTutor', { query: valore })
+        .then(gestisciRisultatoRicerca)
+        .catch(mostraErroreGenerico);
+    }, { spinner: true });
   }
 
   function gestisciRisultatoRicerca(risultato) {
@@ -1678,6 +1806,8 @@
       voce.innerHTML =
         '<div class="nome-candidato">' + candidato.nome + '</div>' +
         '<div class="email-candidato">' + candidato.email + '</div>';
+      // Sincrona (solo stato locale, nessuna chiamata API): non serve
+      // l'helper anti-doppio-tap qui.
       voce.onclick = function () { predisponiInvioLink(candidato.email); };
       contenitore.appendChild(voce);
     });
@@ -1689,27 +1819,26 @@
     const bottoneInvio = document.getElementById('bottone-invia-link');
     bottoneInvio.textContent = t('invio_bottone') + ' ' + email;
     bottoneInvio.style.display = 'block';
-    bottoneInvio.onclick = function () { inviaLinkAccesso(); };
+    bottoneInvio.onclick = function () { inviaLinkAccesso(bottoneInvio); };
   }
 
-  function inviaLinkAccesso() {
-    const bottone = document.getElementById('bottone-invia-link');
-    bottone.disabled = true;
-
-    chiamaApi('richiediLinkAccesso', { email: emailInAttesaDiConferma, lingua: linguaCorrente })
-      .then(function (risultato) {
-        bottone.disabled = false;
-        if (!risultato.ok) {
-          mostraErroreGenerico();
-          return;
-        }
-        mostraSchermata('schermata-attesa-invio');
-        avviaTimerAvvisoSpam();
-      })
-      .catch(function () {
-        bottone.disabled = false;
-        mostraErroreGenerico();
-      });
+  /** Riusata da 3 punti: bottone "Invia link" dopo la ricerca, "Reinvia"
+   *  nella schermata di attesa, e il recupero rapido da "link già usato"
+   *  (mostraErrore) — stessa richiesta, bottone diverso ogni volta, per
+   *  questo l'elemento è un parametro invece di un id fisso. */
+  function inviaLinkAccesso(bottone) {
+    eseguiConCaricamento(bottone, function () {
+      return chiamaApi('richiediLinkAccesso', { email: emailInAttesaDiConferma, lingua: linguaCorrente })
+        .then(function (risultato) {
+          if (!risultato.ok) {
+            mostraErroreGenerico();
+            return;
+          }
+          mostraSchermata('schermata-attesa-invio');
+          avviaTimerAvvisoSpam();
+        })
+        .catch(mostraErroreGenerico);
+    }, { spinner: true });
   }
 
   function avviaTimerAvvisoSpam() {
@@ -1722,7 +1851,7 @@
   }
 
   document.getElementById('bottone-reinvia').onclick = function () {
-    inviaLinkAccesso();
+    inviaLinkAccesso(document.getElementById('bottone-reinvia'));
   };
 
   // Selettore lingua manuale. Se un form è aperto, applicaLingua() da sola
