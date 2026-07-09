@@ -1640,13 +1640,17 @@
 
   // --- Relazione -----------------------------------------------------
 
-  /** Una domanda binaria Sì/No generica — riusa le traduzioni già
-   *  presenti in datiDomandeCache.opzioniIntermedio (si/no), senza
-   *  duplicare quei due testi in un dizionario a parte. */
-  function domandaSiNoHtml(idDomanda, testoDomanda) {
+  /** La domanda "Disponibilità a ospitare di nuovo" della Relazione:
+   *  Sì / No / Forse (documentazione.md §8), con testi e ordine presi
+   *  da opzioniDisponibilita (server, Domande.gs). Il fallback su
+   *  opzioniIntermedio (che di 'forse' non sa nulla) copre la finestra
+   *  di deploy in cui il frontend nuovo parlasse col backend vecchio:
+   *  si degrada a Sì/No invece di mostrare etichette vuote. */
+  function domandaDisponibilitaHtml(idDomanda, testoDomanda) {
     const nomeGruppo = 'radio_' + idDomanda;
-    const opzioni = datiDomandeCache.opzioniIntermedio;
-    const opzioniHtml = ['si', 'no'].map(function (chiave) {
+    const opzioni = datiDomandeCache.opzioniDisponibilita || datiDomandeCache.opzioniIntermedio;
+    const chiavi = ['si', 'no', 'forse'].filter(function (chiave) { return !!opzioni[chiave]; });
+    const opzioniHtml = chiavi.map(function (chiave) {
       const idInput = nomeGruppo + '_' + chiave;
       return (
         '<input type="radio" name="' + nomeGruppo + '" id="' + idInput + '" value="' + chiave + '">' +
@@ -1674,7 +1678,7 @@
     html += '</div>';
 
     html += campoTestoHtml('testo_relazione', t('form_etichetta_relazione'));
-    html += domandaSiNoHtml('disponibilita_riospitare', t('form_domanda_disponibilita_riospitare'));
+    html += domandaDisponibilitaHtml('disponibilita_riospitare', t('form_domanda_disponibilita_riospitare'));
 
     return html;
   }
