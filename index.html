@@ -591,6 +591,56 @@
     color: var(--colore-testo-secondario);
     padding: 16px;
   }
+
+  /* Area consensi in fondo a ogni form: firma elettronica + privacy.
+     Stesso linguaggio visivo delle guide della Relazione (.guida-relazione). */
+  .area-consensi { margin: 8px 0 16px; }
+  .blocco-consenso {
+    background: var(--colore-sfondo);
+    border: 1px solid var(--colore-bordo);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .etichetta-consenso {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--colore-testo-secondario);
+    margin: 0 0 8px;
+  }
+  .consenso-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--colore-testo);
+    cursor: pointer;
+  }
+  .consenso-check input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    margin-top: 1px;
+    accent-color: var(--colore-primario);
+    cursor: pointer;
+  }
+  .consenso-check a { color: var(--colore-primario); }
+  .avviso-consensi {
+    font-size: 12px;
+    color: var(--colore-testo-secondario);
+    text-align: center;
+    margin: 0 0 10px;
+  }
+  .bottone:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
 </style>
 </head>
 <body>
@@ -699,8 +749,33 @@
             <h1 id="titolo-form-modulo" class="titolo-schermata"></h1>
           </div>
           <div id="corpo-form-modulo"></div>
+
+          <!-- Consensi obbligatori, comuni ai 3 moduli: stanno FUORI da
+               #corpo-form-modulo (che viene svuotato e ricostruito a ogni
+               cambio lingua) così lo stato delle caselle sopravvive al
+               re-render; i testi vengono riscritti da aggiornaAreaConsensi().
+               Le caselle si azzerano solo all'APERTURA di un form
+               (apriModulo), mai al cambio lingua. -->
+          <div class="area-consensi">
+            <div class="blocco-consenso">
+              <p class="etichetta-consenso" id="etichetta-consenso-firma"></p>
+              <label class="consenso-check">
+                <input type="checkbox" id="check-consenso-firma">
+                <span id="testo-consenso-firma"></span>
+              </label>
+            </div>
+            <div class="blocco-consenso">
+              <p class="etichetta-consenso" id="etichetta-consenso-privacy"></p>
+              <label class="consenso-check">
+                <input type="checkbox" id="check-consenso-privacy">
+                <span id="testo-consenso-privacy"></span>
+              </label>
+            </div>
+            <p class="avviso-consensi" id="avviso-consensi"></p>
+          </div>
+
           <div id="errore-form-modulo" class="messaggio-errore" style="display:none;"></div>
-          <button id="bottone-invia-form" class="bottone bottone-primario" data-i18n="form_bottone_invia">Submit</button>
+          <button id="bottone-invia-form" class="bottone bottone-primario" data-i18n="form_bottone_invia" disabled>Submit</button>
         </div>
 
         <!-- Conferma dopo l'invio di un modulo -->
@@ -778,6 +853,12 @@
       form_etichetta_relazione: 'Votre rapport',
       form_guida_relazione_titolo: 'Points à aborder',
       form_domanda_disponibilita_riospitare: 'Seriez-vous disponible pour accueillir une autre personne stagiaire Erasmus+ à l\'avenir ?',
+      firma_etichetta: 'Signature électronique simple',
+      firma_testo: 'Je déclare vouloir signer le document généré par le système en tant que {{NOME}}. Je suis conscient(e) que mon accès authentifié via le lien personnel envoyé à {{EMAIL}} permet de m\'attribuer la signature, et que l\'intégrité du document est protégée par un identifiant unique de transaction enregistré par l\'établissement, conformément au règlement (UE) n° 910/2014 (eIDAS).',
+      privacy_etichetta: 'Information sur la protection des données',
+      privacy_testo: 'Je déclare avoir pris connaissance de la note d\'information de l\'établissement sur le traitement des données personnelles ({{LINK}}) et je suis conscient(e) que les données recueillies seront traitées exclusivement aux fins institutionnelles liées à la gestion, à la documentation et au compte rendu du projet Erasmus+, conformément au règlement (UE) 2016/679 (RGPD).',
+      privacy_link_testo: 'consultable ici',
+      consensi_avviso: 'Cochez les deux cases pour activer l\'envoi.',
       modulo_richiede_prerequisito: 'Complétez d\'abord le formulaire {{MODULO}}.',
       form_bottone_invia: 'Envoyer',
       form_invio_in_corso: 'Envoi en cours…',
@@ -827,6 +908,12 @@
       form_etichetta_relazione: 'Ihr Bericht',
       form_guida_relazione_titolo: 'Zu behandelnde Punkte',
       form_domanda_disponibilita_riospitare: 'Wären Sie bereit, in Zukunft eine weitere Erasmus+ Praktikumsperson aufzunehmen?',
+      firma_etichetta: 'Einfache elektronische Signatur',
+      firma_testo: 'Ich erkläre meine Absicht, das vom System erstellte Dokument als {{NOME}} zu unterzeichnen. Mir ist bewusst, dass mein authentifizierter Zugang über den an {{EMAIL}} gesendeten persönlichen Link die Signatur mir zuordnet und dass die Integrität des Dokuments durch eine von der Schule registrierte eindeutige Transaktions-ID geschützt wird, gemäß der Verordnung (EU) Nr. 910/2014 (eIDAS).',
+      privacy_etichetta: 'Datenschutzhinweise',
+      privacy_testo: 'Ich erkläre, die Datenschutzhinweise der Schule zur Verarbeitung personenbezogener Daten ({{LINK}}) gelesen zu haben, und mir ist bewusst, dass die erhobenen Daten ausschließlich für institutionelle Zwecke im Zusammenhang mit der Verwaltung, Dokumentation und Berichterstattung des Erasmus+-Projekts verarbeitet werden, im Einklang mit der Verordnung (EU) 2016/679 (DSGVO).',
+      privacy_link_testo: 'hier abrufbar',
+      consensi_avviso: 'Aktivieren Sie beide Kästchen, um das Absenden zu ermöglichen.',
       modulo_richiede_prerequisito: 'Füllen Sie zuerst das Formular {{MODULO}} aus.',
       form_bottone_invia: 'Absenden',
       form_invio_in_corso: 'Wird gesendet…',
@@ -876,6 +963,12 @@
       form_etichetta_relazione: 'Your report',
       form_guida_relazione_titolo: 'Points to address',
       form_domanda_disponibilita_riospitare: 'Would you be willing to host another Erasmus+ trainee in the future?',
+      firma_etichetta: 'Simple electronic signature',
+      firma_testo: 'I declare my intention to sign the document generated by the system as {{NOME}}. I am aware that my authenticated access via the personal link sent to {{EMAIL}} attributes the signature to me, and that the integrity of the document is protected by a unique transaction ID recorded by the school, pursuant to Regulation (EU) No 910/2014 (eIDAS).',
+      privacy_etichetta: 'Privacy notice',
+      privacy_testo: 'I declare that I have read the school\'s notice on the processing of personal data ({{LINK}}) and I am aware that the data collected will be processed exclusively for institutional purposes related to the management, documentation and reporting of the Erasmus+ project, in accordance with Regulation (EU) 2016/679 (GDPR).',
+      privacy_link_testo: 'available here',
+      consensi_avviso: 'Tick both boxes to enable submission.',
       modulo_richiede_prerequisito: 'Complete the {{MODULO}} form first.',
       form_bottone_invia: 'Submit',
       form_invio_in_corso: 'Sending…',
@@ -925,6 +1018,12 @@
       form_etichetta_relazione: 'Su informe',
       form_guida_relazione_titolo: 'Puntos a tratar',
       form_domanda_disponibilita_riospitare: '¿Estaría dispuesto/a a acoger a otra persona en prácticas Erasmus+ en el futuro?',
+      firma_etichetta: 'Firma electrónica simple',
+      firma_testo: 'Declaro mi voluntad de firmar el documento generado por el sistema como {{NOME}}. Soy consciente de que mi acceso autenticado mediante el enlace personal enviado a {{EMAIL}} permite atribuirme la firma, y de que la integridad del documento está protegida por un identificador único de transacción registrado por el centro, de conformidad con el Reglamento (UE) n.º 910/2014 (eIDAS).',
+      privacy_etichetta: 'Información sobre protección de datos',
+      privacy_testo: 'Declaro haber leído la información del centro sobre el tratamiento de datos personales ({{LINK}}) y soy consciente de que los datos recogidos se tratarán exclusivamente para fines institucionales relacionados con la gestión, documentación y justificación del proyecto Erasmus+, de conformidad con el Reglamento (UE) 2016/679 (RGPD).',
+      privacy_link_testo: 'disponible aquí',
+      consensi_avviso: 'Marca ambas casillas para poder enviar.',
       modulo_richiede_prerequisito: 'Complete primero el formulario {{MODULO}}.',
       form_bottone_invia: 'Enviar',
       form_invio_in_corso: 'Enviando…',
@@ -997,11 +1096,22 @@
   // ------------------------------------------------------------------
   const URL_API = 'https://script.google.com/macros/s/AKfycbyCH3rhWKKi4RBDwPYzhuwtNRQVcXts-sVSavez6g4EiaWsQqMFYrbu40F2AYFuc5WX/exec';
 
+  // ------------------------------------------------------------------
+  // Informativa privacy linkata nel consenso in fondo ai form.
+  // ATTENZIONE: questo URL punta all'informativa "genitori e alunni"
+  // dell'Istituto — i tutor aziendali esteri sono una categoria di
+  // interessati DIVERSA. Da sostituire con un'informativa dedicata (o
+  // verificare col referente privacy che quella generale li copra)
+  // prima dell'avvio reale. Vedi anche la nota sopra TRADUZIONI.
+  // ------------------------------------------------------------------
+  const URL_PRIVACY_POLICY = 'https://cspace.spaggiari.eu/pub/VAIM0001/PRIVACY/annotazione_INFORMATIVA%20FORNITORI%20E%20ESPERTI%20ver%2012%20agosto%202024.pdf';
+
   // Stato applicativo in memoria (mai in sessionStorage/cookie — solo
   // il token di sessione vive in localStorage, per sopravvivere ai
   // refresh).
   let studenteCorrente = null;
-  let nomeTutorCorrente = null; // solo per il saluto di cortesia, nessun ruolo di sicurezza
+  let nomeTutorCorrente = null;  // per il saluto di cortesia e il testo del consenso di firma
+  let emailTutorCorrente = null; // per il testo del consenso di firma ("...autenticato con {{EMAIL}}")
   // Il client non conosce mai l'email in chiaro del tutor prima
   // dell'autenticazione: cercaTutor restituisce id_tutor + email
   // mascherata (m***@e***.fr), e richiediLinkAccesso lavora per
@@ -1226,6 +1336,7 @@
     chiamaApi('elencoStudentiPerTutor', {}, tokenSessione)
       .then(function (risultato) {
         nomeTutorCorrente = risultato.nomeTutor || '';
+        emailTutorCorrente = risultato.emailTutor || '';
         mostraSalutoTutor();
         gestisciElencoStudenti(risultato.studenti);
       })
@@ -1428,6 +1539,7 @@
    *  mini-caricamento sulla scheda toccata — meno invasivo su mobile. */
   function apriModulo(tipo) {
     tipoModuloCorrente = tipo;
+    azzeraConsensi(); // nuovo form = consensi da esprimere di nuovo
 
     if (datiDomandeCache) {
       renderFormModulo(tipo);
@@ -1464,10 +1576,63 @@
       document.getElementById('corpo-form-modulo').innerHTML = corpoFormRelazioneHtml();
     }
 
-    document.getElementById('bottone-invia-form').disabled = false;
+    aggiornaAreaConsensi();
+    aggiornaStatoInvio();
     document.getElementById('bottone-invia-form').textContent = t('form_bottone_invia');
     mostraSchermata('schermata-form-modulo');
   }
+
+  // --- Consensi obbligatori (firma elettronica + privacy) -------------
+
+  /** Escape HTML minimo per i valori dinamici interpolati con innerHTML
+   *  (nome ed email arrivano dallo Sheet: fidarsi va bene, ma un nome
+   *  contenente '<' non deve poter diventare markup). */
+  function escapeHtml(testo) {
+    return String(testo == null ? '' : testo).replace(/[&<>"']/g, function (carattere) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[carattere];
+    });
+  }
+
+  function consensiSpuntati() {
+    return document.getElementById('check-consenso-firma').checked &&
+      document.getElementById('check-consenso-privacy').checked;
+  }
+
+  /** Bottone Invia abilitato solo con entrambe le caselle spuntate;
+   *  l'avviso sotto i consensi compare finché manca qualcosa. */
+  function aggiornaStatoInvio() {
+    const pronti = consensiSpuntati();
+    document.getElementById('bottone-invia-form').disabled = !pronti;
+    document.getElementById('avviso-consensi').style.display = pronti ? 'none' : 'block';
+  }
+
+  /** Riscrive i testi dei consensi nella lingua corrente, interpolando
+   *  nome ed email del tutor (grassetto) e il link all'informativa.
+   *  Non tocca MAI lo stato delle caselle: al cambio lingua le spunte
+   *  già date restano. L'azzeramento avviene solo in apriModulo. */
+  function aggiornaAreaConsensi() {
+    document.getElementById('etichetta-consenso-firma').textContent = t('firma_etichetta');
+    document.getElementById('etichetta-consenso-privacy').textContent = t('privacy_etichetta');
+
+    document.getElementById('testo-consenso-firma').innerHTML = escapeHtml(t('firma_testo'))
+      .replace('{{NOME}}', '<strong>' + escapeHtml(nomeTutorCorrente) + '</strong>')
+      .replace('{{EMAIL}}', '<strong>' + escapeHtml(emailTutorCorrente) + '</strong>');
+
+    const linkPrivacy = '<a href="' + URL_PRIVACY_POLICY + '" target="_blank" rel="noopener" ' +
+      'onclick="event.stopPropagation()">' + escapeHtml(t('privacy_link_testo')) + '</a>';
+    document.getElementById('testo-consenso-privacy').innerHTML =
+      escapeHtml(t('privacy_testo')).replace('{{LINK}}', linkPrivacy);
+
+    document.getElementById('avviso-consensi').textContent = t('consensi_avviso');
+  }
+
+  function azzeraConsensi() {
+    document.getElementById('check-consenso-firma').checked = false;
+    document.getElementById('check-consenso-privacy').checked = false;
+  }
+
+  document.getElementById('check-consenso-firma').onchange = aggiornaStatoInvio;
+  document.getElementById('check-consenso-privacy').onchange = aggiornaStatoInvio;
 
   // --- Blocchi HTML riusabili per costruire un form ------------------
 
@@ -1757,6 +1922,8 @@
    *  risposte del modulo aperto (raccogliRisposteModuloCorrente, già
    *  corretta per Intermedio/Finale/Relazione), valida, invia. */
   function inviaModuloCorrente() {
+    if (!consensiSpuntati()) return; // il bottone è disabilitato, ma difendiamoci comunque
+
     const raccolta = raccogliRisposteModuloCorrente();
     if (!raccolta) return;
 
@@ -1779,9 +1946,14 @@
       tipoModulo: tipoInInvio,
       risposte: raccolta.valori,
       linguaCompilazione: linguaCorrente,
+      // Stato reale delle caselle, rivalidato dal server (consensi_mancanti)
+      consensi: {
+        firma: document.getElementById('check-consenso-firma').checked,
+        privacy: document.getElementById('check-consenso-privacy').checked,
+      },
     }, tokenSessione)
       .then(function (risultato) {
-        bottone.disabled = false;
+        aggiornaStatoInvio();
         bottone.textContent = t('form_bottone_invia');
         if (!risultato.ok) {
           // Le barriere server (unicità, sequenza, autorizzazione — vedi
@@ -1803,7 +1975,7 @@
         mostraSchermata('schermata-conferma-form');
       })
       .catch(function (errore) {
-        bottone.disabled = false;
+        aggiornaStatoInvio();
         bottone.textContent = t('form_bottone_invia');
         if (errore === 'sessione_non_valida') {
           mostraErrore(errore);
