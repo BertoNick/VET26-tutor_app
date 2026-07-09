@@ -730,6 +730,7 @@
       atterraggio_bottone: 'Accéder à mon espace',
       errore_link_non_valido: 'Ce lien n\'est pas valide.',
       errore_link_gia_usato: 'Ce lien a déjà été utilisé. Demandez-en un nouveau depuis l\'écran d\'accueil.',
+      errore_link_scaduto: 'Ce lien a expiré. Demandez-en un nouveau ci-dessous.',
       errore_generico: 'Une erreur est survenue. Réessayez dans un instant.',
       selezione_studente_titolo: 'Quel étudiant souhaitez-vous évaluer ?',
       moduli_titolo: 'Formulaires d\'évaluation',
@@ -752,6 +753,7 @@
       form_bottone_invia: 'Envoyer',
       form_invio_in_corso: 'Envoi en cours…',
       form_errore_campi_obbligatori: 'Veuillez répondre à toutes les questions avant d\'envoyer.',
+      errore_modulo_gia_compilato: 'Ce formulaire a déjà été envoyé pour cette personne stagiaire.',
       form_conferma_titolo: 'Merci !',
       form_conferma_testo: 'Vos réponses ont été enregistrées avec succès.',
       form_conferma_bottone: 'Retour aux formulaires',
@@ -777,6 +779,7 @@
       atterraggio_bottone: 'Zu meinem Bereich',
       errore_link_non_valido: 'Dieser Link ist ungültig.',
       errore_link_gia_usato: 'Dieser Link wurde bereits verwendet. Fordern Sie über die Startseite einen neuen an.',
+      errore_link_scaduto: 'Dieser Link ist abgelaufen. Fordern Sie unten einen neuen an.',
       errore_generico: 'Etwas ist schiefgelaufen. Versuchen Sie es in Kürze erneut.',
       selezione_studente_titolo: 'Welchen Studierenden möchten Sie bewerten?',
       moduli_titolo: 'Bewertungsformulare',
@@ -799,6 +802,7 @@
       form_bottone_invia: 'Absenden',
       form_invio_in_corso: 'Wird gesendet…',
       form_errore_campi_obbligatori: 'Bitte beantworten Sie alle Fragen, bevor Sie absenden.',
+      errore_modulo_gia_compilato: 'Dieses Formular wurde für diese Praktikumsperson bereits gesendet.',
       form_conferma_titolo: 'Vielen Dank!',
       form_conferma_testo: 'Ihre Antworten wurden erfolgreich gespeichert.',
       form_conferma_bottone: 'Zurück zu den Formularen',
@@ -824,6 +828,7 @@
       atterraggio_bottone: 'Go to my area',
       errore_link_non_valido: 'This link is not valid.',
       errore_link_gia_usato: 'This link has already been used. Request a new one from the start screen.',
+      errore_link_scaduto: 'This link has expired. Request a new one below.',
       errore_generico: 'Something went wrong. Please try again shortly.',
       selezione_studente_titolo: 'Which student would you like to evaluate?',
       moduli_titolo: 'Evaluation forms',
@@ -846,6 +851,7 @@
       form_bottone_invia: 'Submit',
       form_invio_in_corso: 'Sending…',
       form_errore_campi_obbligatori: 'Please answer all the questions before submitting.',
+      errore_modulo_gia_compilato: 'This form has already been submitted for this trainee.',
       form_conferma_titolo: 'Thank you!',
       form_conferma_testo: 'Your answers have been saved successfully.',
       form_conferma_bottone: 'Back to forms',
@@ -871,6 +877,7 @@
       atterraggio_bottone: 'Ir a mi área',
       errore_link_non_valido: 'Este enlace no es válido.',
       errore_link_gia_usato: 'Este enlace ya se ha utilizado. Solicita uno nuevo desde la pantalla inicial.',
+      errore_link_scaduto: 'Este enlace ha caducado. Solicita uno nuevo abajo.',
       errore_generico: 'Algo salió mal. Inténtalo de nuevo en unos instantes.',
       selezione_studente_titolo: '¿A qué estudiante quieres evaluar?',
       moduli_titolo: 'Formularios de evaluación',
@@ -893,6 +900,7 @@
       form_bottone_invia: 'Enviar',
       form_invio_in_corso: 'Enviando…',
       form_errore_campi_obbligatori: 'Responda a todas las preguntas antes de enviar.',
+      errore_modulo_gia_compilato: 'Este formulario ya se ha enviado para esta persona en prácticas.',
       form_conferma_titolo: '¡Gracias!',
       form_conferma_testo: 'Sus respuestas se han guardado correctamente.',
       form_conferma_bottone: 'Volver a los formularios',
@@ -965,7 +973,11 @@
   // refresh).
   let studenteCorrente = null;
   let nomeTutorCorrente = null; // solo per il saluto di cortesia, nessun ruolo di sicurezza
-  let emailInAttesaDiConferma = null;
+  // Il client non conosce mai l'email in chiaro del tutor prima
+  // dell'autenticazione: cercaTutor restituisce id_tutor + email
+  // mascherata (m***@e***.fr), e richiediLinkAccesso lavora per
+  // id_tutor — l'indirizzo vero lo risolve solo il server.
+  let tutorInAttesaDiConferma = null; // { idTutor, emailMascherata }
   let datiDomandeCache = null;   // popolata alla prima apertura di un form, riusata per gli altri
   let tipoModuloCorrente = null; // 'Intermedio' | 'Finale' | 'Relazione', null se nessun form è aperto
 
@@ -1040,29 +1052,30 @@
 
   /**
    * @param {string} chiaveMotivo
-   * @param {string} [emailRecupero] Solo per 'token_gia_usato': l'email a
-   *   cui era destinato il link ormai consumato (il server la restituisce
-   *   anche in caso di fallimento — non è un dato nuovo, chi ha ricevuto
-   *   quel link sa già a quale indirizzo è stato mandato). Se presente,
-   *   mostra un bottone "Invia un nuovo link a ..." per un recupero in un
-   *   tap, invece di rimandare il tutor daccapo alla ricerca del proprio
-   *   nome — è la causa più comune di confusione multi-dispositivo.
+   * @param {{idTutor:string, emailMascherata:string}} [recupero] Solo per
+   *   'token_gia_usato' e 'token_scaduto': il server restituisce id_tutor
+   *   ed email MASCHERATA del destinatario del link. Se presente, mostra
+   *   un bottone "Invia un nuovo link a m***@e***.fr" per un recupero in
+   *   un tap, invece di rimandare il tutor daccapo alla ricerca del
+   *   proprio nome — è la causa più comune di confusione multi-dispositivo.
    */
-  function mostraErrore(chiaveMotivo, emailRecupero) {
+  function mostraErrore(chiaveMotivo, recupero) {
     const mappaMotivi = {
       token_non_valido: 'errore_link_non_valido',
       token_gia_usato: 'errore_link_gia_usato',
+      token_scaduto: 'errore_link_scaduto',
       sessione_non_valida: 'errore_link_non_valido',
     };
     const chiaveTesto = mappaMotivi[chiaveMotivo] || 'errore_generico';
     document.getElementById('testo-errore').textContent = t(chiaveTesto);
 
+    const recuperabile = chiaveMotivo === 'token_gia_usato' || chiaveMotivo === 'token_scaduto';
     const bottoneRecupero = document.getElementById('bottone-recupero-errore');
-    if (chiaveMotivo === 'token_gia_usato' && emailRecupero) {
-      bottoneRecupero.textContent = t('invio_bottone') + ' ' + emailRecupero;
+    if (recuperabile && recupero && recupero.idTutor) {
+      bottoneRecupero.textContent = t('invio_bottone') + ' ' + recupero.emailMascherata;
       bottoneRecupero.style.display = 'block';
       bottoneRecupero.onclick = function () {
-        emailInAttesaDiConferma = emailRecupero;
+        tutorInAttesaDiConferma = recupero;
         inviaLinkAccesso(bottoneRecupero);
       };
     } else {
@@ -1161,7 +1174,7 @@
       return chiamaApi('validaTokenMonouso', { tokenMonouso: token })
         .then(function (risultato) {
           if (!risultato.ok) {
-            mostraErrore(risultato.motivo, risultato.email);
+            mostraErrore(risultato.motivo, risultato.recupero);
             return;
           }
           localStorage.setItem('token_sessione', risultato.tokenSessione);
@@ -1258,6 +1271,13 @@
 
     return chiamaApi('statoModuliPerStudente', { idStudente: studenteCorrente.idStudente }, tokenSessione)
       .then(function (risultato) {
+        // {ok:false, motivo:'studente_non_assegnato'} — non raggiungibile
+        // navigando normalmente (gli studenti mostrati vengono dal server),
+        // ma il server ora lo verifica sempre e il client non deve rompersi.
+        if (!risultato.ok) {
+          mostraErroreGenerico();
+          return;
+        }
         mostraModuli(risultato.moduli);
       })
       .catch(function (errore) {
@@ -1731,7 +1751,19 @@
         bottone.disabled = false;
         bottone.textContent = t('form_bottone_invia');
         if (!risultato.ok) {
-          mostraErroreForm(t('form_errore_campi_obbligatori'));
+          // Le barriere server (unicità, sequenza, autorizzazione — vedi
+          // salvaRisposteModulo in Api.gs) hanno messaggi propri; tutto il
+          // resto è la validazione campi già gestita prima dell'invio.
+          if (risultato.motivo === 'modulo_gia_compilato') {
+            mostraErroreForm(t('errore_modulo_gia_compilato'));
+          } else if (risultato.motivo === 'prerequisito_mancante') {
+            const prerequisito = PREREQUISITO_MODULO[tipoInInvio];
+            mostraErroreForm(t('modulo_richiede_prerequisito').replace('{{MODULO}}', t(CHIAVE_TAPPA[prerequisito])));
+          } else if (risultato.motivo === 'studente_non_assegnato') {
+            mostraErroreForm(t('errore_generico'));
+          } else {
+            mostraErroreForm(t('form_errore_campi_obbligatori'));
+          }
           return;
         }
         tipoModuloCorrente = null;
@@ -1794,30 +1826,33 @@
     }
 
     if (risultato.stato === 'trovato') {
-      predisponiInvioLink(risultato.tutor.email);
+      predisponiInvioLink(risultato.tutor);
       return;
     }
 
-    // stato === 'multipli'
+    // stato === 'multipli' — il server manda solo nome + email mascherata
+    // (m***@e***.fr): abbastanza per riconoscersi, niente dati in chiaro
+    // su una schermata pre-autenticazione.
     const contenitore = document.getElementById('elenco-candidati-tutor');
     contenitore.innerHTML = '';
     risultato.candidati.forEach(function (candidato) {
       const voce = document.createElement('li');
       voce.innerHTML =
         '<div class="nome-candidato">' + candidato.nome + '</div>' +
-        '<div class="email-candidato">' + candidato.email + '</div>';
+        '<div class="email-candidato">' + candidato.emailMascherata + '</div>';
       // Sincrona (solo stato locale, nessuna chiamata API): non serve
       // l'helper anti-doppio-tap qui.
-      voce.onclick = function () { predisponiInvioLink(candidato.email); };
+      voce.onclick = function () { predisponiInvioLink(candidato); };
       contenitore.appendChild(voce);
     });
     contenitore.style.display = 'block';
   }
 
-  function predisponiInvioLink(email) {
-    emailInAttesaDiConferma = email;
+  /** @param {{idTutor:string, nome:string, emailMascherata:string}} tutor */
+  function predisponiInvioLink(tutor) {
+    tutorInAttesaDiConferma = { idTutor: tutor.idTutor, emailMascherata: tutor.emailMascherata };
     const bottoneInvio = document.getElementById('bottone-invia-link');
-    bottoneInvio.textContent = t('invio_bottone') + ' ' + email;
+    bottoneInvio.textContent = t('invio_bottone') + ' ' + tutor.emailMascherata;
     bottoneInvio.style.display = 'block';
     bottoneInvio.onclick = function () { inviaLinkAccesso(bottoneInvio); };
   }
@@ -1828,9 +1863,13 @@
    *  questo l'elemento è un parametro invece di un id fisso. */
   function inviaLinkAccesso(bottone) {
     eseguiConCaricamento(bottone, function () {
-      return chiamaApi('richiediLinkAccesso', { email: emailInAttesaDiConferma, lingua: linguaCorrente })
+      return chiamaApi('richiediLinkAccesso', { idTutor: tutorInAttesaDiConferma.idTutor, lingua: linguaCorrente })
         .then(function (risultato) {
-          if (!risultato.ok) {
+          // 'invio_troppo_ravvicinato' (cooldown server, vedi Api.gs) viene
+          // trattato come un invio riuscito: una mail per quell'indirizzo È
+          // partita da meno di 90 secondi, quindi "controlla la casella" è
+          // il messaggio giusto anche qui — nessun errore da mostrare.
+          if (!risultato.ok && risultato.motivo !== 'invio_troppo_ravvicinato') {
             mostraErroreGenerico();
             return;
           }
