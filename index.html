@@ -66,6 +66,23 @@
     letter-spacing: -0.01em;
   }
 
+  /* Blocco loghi + titolo nella barra superiore. I loghi hanno solo
+     un'altezza fissa (la larghezza segue le proporzioni originali del
+     file): abbastanza piccoli da non dominare la barra su mobile, dove
+     lo spazio orizzontale è conteso col selettore lingua. */
+  .blocco-marchio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .logo-intestazione {
+    height: 34px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+
   .selettore-lingua {
     display: flex;
     gap: 4px;
@@ -580,7 +597,19 @@
   <div class="contenitore-app">
 
     <div class="barra-superiore">
-      <div class="marchio" data-i18n="marchio">Erasmus+ VET</div>
+      <!-- Loghi istituzionali: i file vanno caricati nella cartella
+           assets/ del repo del frontend, con QUESTI nomi esatti —
+           GitHub Pages gira su Linux ed è case-sensitive, quindi
+           LOGO_MANZONI.png e logo_manzoni.png sono file diversi.
+           Finché i file non ci sono, onerror nasconde l'immagine
+           rotta: la barra resta pulita, con il solo titolo testuale
+           (per questo sono "placeholder": si attivano da soli al
+           momento del caricamento dei file, senza toccare il codice). -->
+      <div class="blocco-marchio">
+        <img src="assets/LOGO_MANZONI.png" alt="Liceo Manzoni" class="logo-intestazione" onerror="this.style.display='none'">
+        <img src="assets/LOGO_ERASMUSplus.jpg" alt="Erasmus+" class="logo-intestazione" onerror="this.style.display='none'">
+        <div class="marchio" data-i18n="marchio">Erasmus+ VET</div>
+      </div>
       <div class="selettore-lingua">
         <button data-lingua="fr">FR</button>
         <button data-lingua="de">DE</button>
