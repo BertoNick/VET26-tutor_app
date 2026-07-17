@@ -93,9 +93,12 @@
   }
 
   .selettore-lingua button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     border: none;
     background: transparent;
-    padding: 5px 10px;
+    padding: 5px 9px;
     border-radius: 999px;
     font-family: var(--font-corpo);
     font-size: 12px;
@@ -104,6 +107,13 @@
     color: var(--colore-testo-secondario);
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  /* Bandierina decorativa accanto alla sigla lingua: dimensione allineata
+     al testo, nessun impatto sul layout a parte i pochi px di gap sopra. */
+  .selettore-lingua .bandiera {
+    font-size: 13px;
+    line-height: 1;
   }
 
   .selettore-lingua button.attivo {
@@ -407,6 +417,37 @@
     .bottone { transition: none; }
   }
 
+  /* Barra sottile sticky col nome del tirocinante, in cima ai questionari.
+     I margini negativi (-32px/-28px) annullano esattamente il padding di
+     .scheda, così la barra arriva fino ai bordi della card e ne riprende
+     gli angoli arrotondati; il padding interno lo ripristina per il testo.
+     position:sticky la fa restare in vista durante lo scroll di un
+     questionario lungo, senza bisogno di un contenitore separato. */
+  .barra-studente-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin: -32px -28px 20px -28px;
+    padding: 10px 28px;
+    background: var(--colore-primario);
+    color: #fff;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    border-radius: var(--raggio) var(--raggio) 0 0;
+  }
+  .barra-studente-sticky .etichetta-bandiera-studente {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
+  }
+  #nome-studente-form {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
   /* Header dentro la schermata di un form modulo: bottone indietro + titolo */
   .intestazione-form {
     margin-bottom: 20px;
@@ -661,10 +702,10 @@
         <div class="marchio" data-i18n="marchio">Erasmus+ VET</div>
       </div>
       <div class="selettore-lingua">
-        <button data-lingua="fr">FR</button>
-        <button data-lingua="de">DE</button>
-        <button data-lingua="en">EN</button>
-        <button data-lingua="es">ES</button>
+        <button data-lingua="fr"><span class="bandiera" aria-hidden="true">🇫🇷</span>FR</button>
+        <button data-lingua="de"><span class="bandiera" aria-hidden="true">🇩🇪</span>DE</button>
+        <button data-lingua="en"><span class="bandiera" aria-hidden="true">🇬🇧</span>EN</button>
+        <button data-lingua="es"><span class="bandiera" aria-hidden="true">🇪🇸</span>ES</button>
       </div>
     </div>
 
@@ -717,6 +758,11 @@
              a tappe + schede (contenuto reale da collegare quando arriveranno
              testi domanda / template) -->
         <div id="schermata-moduli" class="schermata">
+          <!-- Visibile solo se il tutor segue più di uno studente (v. JS
+               popolaSchedaInfoStudente): con un solo studente non esiste
+               una "lista" a cui tornare, coerente con gestisciElencoStudenti
+               che in quel caso salta la schermata di selezione. -->
+          <button id="bottone-cambia-studente" class="bottone-indietro-form" style="display:none;" data-i18n="moduli_bottone_studenti">← Change student</button>
           <h1 class="titolo-schermata" data-i18n="moduli_titolo">Evaluation forms</h1>
 
           <div class="scheda-info-studente">
@@ -744,6 +790,14 @@
              Ri-renderizzato al volo se il tutor cambia lingua a metà
              compilazione (il selettore lingua in alto resta attivo). -->
         <div id="schermata-form-modulo" class="schermata">
+          <!-- Barra sottile e sticky col nome del tirocinante: resta visibile
+               scorrendo un questionario lungo (Finale/Relazione), utile
+               soprattutto a chi segue più studenti ma comoda per tutti.
+               Popolata in renderFormModulo() con studenteCorrente.nomeStudente. -->
+          <div id="barra-studente-form" class="barra-studente-sticky">
+            <span class="etichetta-bandiera-studente" data-i18n="info_studente">Trainee</span>
+            <span id="nome-studente-form"></span>
+          </div>
           <div class="intestazione-form">
             <button id="bottone-indietro-form" class="bottone-indietro-form" data-i18n="form_bottone_indietro">← Back to forms</button>
             <h1 id="titolo-form-modulo" class="titolo-schermata"></h1>
@@ -804,14 +858,9 @@
 <script>
   // ------------------------------------------------------------------
   // TRADUZIONI — pattern: un oggetto per chiave UI, non stringhe
-  // sparse nel codice. Copertura attuale: solo le schermate già
-  // costruite (autenticazione, selezione studente, elenco moduli).
-  //
-  // ATTENZIONE: questi sono testi UI generici, NON hanno valore legale.
-  // Quando si aggiungeranno schermate con consenso privacy / firma
-  // elettronica, quei testi vanno tradotti con revisione madrelingua
-  // prima di andare in produzione — non lasciare alla traduzione
-  // automatica presente qui come fallback provvisorio.
+  // sparse nel codice. Copertura: tutte le schermate, inclusi i testi
+  // di consenso firma/privacy (già rivisti da madrelingua, vedi §9
+  // della documentazione).
   // ------------------------------------------------------------------
   const TRADUZIONI = {
     fr: {
@@ -847,6 +896,7 @@
       stato_completato: 'Terminé',
       stato_da_compilare: 'À compléter',
       form_bottone_indietro: '← Retour aux formulaires',
+      moduli_bottone_studenti: '← Changer d\'étudiant(e)',
       form_conferma_uscita: 'Voulez-vous vraiment quitter ? Les réponses saisies seront perdues.',
       form_etichetta_descrizione_mansione: 'Description du poste',
       form_etichetta_compiti_affidati: 'Tâches confiées au/à la stagiaire',
@@ -902,6 +952,7 @@
       stato_completato: 'Abgeschlossen',
       stato_da_compilare: 'Ausstehend',
       form_bottone_indietro: '← Zurück zu den Formularen',
+      moduli_bottone_studenti: '← Studierende/n wechseln',
       form_conferma_uscita: 'Möchten Sie wirklich verlassen? Die eingegebenen Antworten gehen verloren.',
       form_etichetta_descrizione_mansione: 'Beschreibung der Tätigkeit',
       form_etichetta_compiti_affidati: 'Der Praktikumsperson übertragene Aufgaben',
@@ -957,6 +1008,7 @@
       stato_completato: 'Completed',
       stato_da_compilare: 'Pending',
       form_bottone_indietro: '← Back to forms',
+      moduli_bottone_studenti: '← Change student',
       form_conferma_uscita: 'Are you sure you want to leave? Your answers will be lost.',
       form_etichetta_descrizione_mansione: 'Job description',
       form_etichetta_compiti_affidati: 'Tasks assigned to the trainee',
@@ -1012,6 +1064,7 @@
       stato_completato: 'Completado',
       stato_da_compilare: 'Pendiente',
       form_bottone_indietro: '← Volver a los formularios',
+      moduli_bottone_studenti: '← Cambiar de estudiante',
       form_conferma_uscita: '¿Seguro que quieres salir? Las respuestas introducidas se perderán.',
       form_etichetta_descrizione_mansione: 'Descripción del puesto',
       form_etichetta_compiti_affidati: 'Tareas asignadas a la persona en prácticas',
@@ -1104,7 +1157,7 @@
   // verificare col referente privacy che quella generale li copra)
   // prima dell'avvio reale. Vedi anche la nota sopra TRADUZIONI.
   // ------------------------------------------------------------------
-  const URL_PRIVACY_POLICY = 'https://cspace.spaggiari.eu/pub/VAIM0001/PRIVACY/annotazione_INFORMATIVA%20FORNITORI%20E%20ESPERTI%20ver%2012%20agosto%202024.pdf';
+  const URL_PRIVACY_POLICY = 'https://cspace.spaggiari.eu/pub/VAIM0001/PRIVACY/annotazione_INFORMATIVA%20GENITORI%20E%20ALUNNI%202025.pdf';
 
   // Stato applicativo in memoria (mai in sessionStorage/cookie — solo
   // il token di sessione vive in localStorage, per sopravvivere ai
@@ -1119,6 +1172,8 @@
   let tutorInAttesaDiConferma = null; // { idTutor, emailMascherata }
   let datiDomandeCache = null;   // popolata alla prima apertura di un form, riusata per gli altri
   let tipoModuloCorrente = null; // 'Intermedio' | 'Finale' | 'Relazione', null se nessun form è aperto
+  let elencoStudentiTutor = [];  // TUTTI gli studenti del tutor (anche con uno solo): serve solo a
+                                  // decidere se mostrare il bottone "cambia studente" nella lista moduli.
 
   // ------------------------------------------------------------------
   // Un solo punto di chiamata verso l'API Apps Script. Sempre POST,
@@ -1359,6 +1414,7 @@
   }
 
   function gestisciElencoStudenti(studenti) {
+    elencoStudentiTutor = studenti || [];
     if (!studenti || studenti.length === 0) {
       mostraErroreGenerico();
       return;
@@ -1393,6 +1449,12 @@
 
   /** Header non fisso, in cima alla schermata moduli, coi dati del tirocinio. */
   function popolaSchedaInfoStudente(studente) {
+    // Il bottone "cambia studente" ha senso solo se ce n'è più di uno tra
+    // cui scegliere: con un solo studente non esiste una lista a cui
+    // tornare (gestisciElencoStudenti salta la schermata di selezione).
+    document.getElementById('bottone-cambia-studente').style.display =
+      elencoStudentiTutor.length > 1 ? 'block' : 'none';
+
     document.getElementById('info-nome-studente').textContent = studente.nomeStudente || studente.idStudente;
     document.getElementById('info-azienda-studente').textContent = studente.azienda + (studente.destinazione ? ' — ' + studente.destinazione : '');
 
@@ -1563,6 +1625,11 @@
   }
 
   function renderFormModulo(tipo) {
+    // Barra sticky: stesso nome già mostrato nella scheda-info-studente
+    // della lista moduli, qui resta visibile anche scorrendo il form.
+    document.getElementById('nome-studente-form').textContent =
+      studenteCorrente ? (studenteCorrente.nomeStudente || studenteCorrente.idStudente) : '';
+
     document.getElementById('titolo-form-modulo').textContent = t(CHIAVE_TAPPA[tipo]);
     const errore = document.getElementById('errore-form-modulo');
     errore.style.display = 'none';
@@ -1993,6 +2060,12 @@
     if (textareaConTesto) return true;
     return document.querySelectorAll('#corpo-form-modulo input[type="radio"]:checked').length > 0;
   }
+
+  // La lista è già stata costruita da gestisciElencoStudenti al primo
+  // caricamento: non serve richiamare l'API, si mostra e basta.
+  document.getElementById('bottone-cambia-studente').onclick = function () {
+    mostraSchermata('schermata-selezione-studente');
+  };
 
   document.getElementById('bottone-indietro-form').onclick = function () {
     if (formHaRisposteInserite() && !window.confirm(t('form_conferma_uscita'))) return;
