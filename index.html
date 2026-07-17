@@ -741,8 +741,8 @@
         <div id="schermata-richiesta-accesso" class="schermata">
           <h1 class="titolo-schermata" data-i18n="accesso_titolo">Access your area</h1>
           <p class="sottotitolo" data-i18n="accesso_sottotitolo">Enter your name or email to receive your access link.</p>
-          <label for="campo-ricerca-tutor" data-i18n="accesso_etichetta_campo">Name or email</label>
-          <input type="text" id="campo-ricerca-tutor" data-i18n-placeholder="accesso_placeholder" placeholder="">
+          <label for="campo-ricerca-tutor" data-i18n="accesso_etichetta_campo">Email</label>
+          <input type="email" id="campo-ricerca-tutor" data-i18n-placeholder="accesso_placeholder" placeholder="" autocomplete="email">
           <div id="errore-ricerca" class="messaggio-errore" style="display:none;"></div>
           <ul id="elenco-candidati-tutor" class="elenco-candidati" style="display:none;"></ul>
           <button id="bottone-cerca-tutor" class="bottone bottone-primario" data-i18n="accesso_bottone_cerca">Continue</button>
@@ -876,12 +876,13 @@
     fr: {
       marchio: 'Erasmus+ VET · Évaluation Tuteur',
       accesso_titolo: 'Accédez à votre espace',
-      accesso_sottotitolo: 'Saisissez votre nom ou votre email pour recevoir le lien d\'accès.',
-      accesso_etichetta_campo: 'Nom ou email',
-      accesso_placeholder: 'ex. Marie Dubois ou marie.dubois@entreprise.fr',
+      accesso_sottotitolo: 'Saisissez votre adresse email pour recevoir le lien d\'accès.',
+      accesso_etichetta_campo: 'Email',
+      accesso_placeholder: '',
       accesso_bottone_cerca: 'Continuer',
       saluto_connesso: 'Connecté(e) en tant que',
-      accesso_errore_non_trovato: 'Nous ne trouvons pas ce nom ou cet email dans notre liste. Vérifiez l\'orthographe.',
+      accesso_errore_non_trovato: 'Nous ne trouvons pas cet email dans notre liste. Vérifiez l\'orthographe.',
+      accesso_errore_formato: 'Veuillez saisir une adresse email valide.',
       candidati_titolo: 'Nous avons trouvé plusieurs résultats — sélectionnez votre nom :',
       invio_bottone: 'Envoyer le lien d\'accès à',
       attesa_titolo: 'Consultez votre email',
@@ -915,7 +916,7 @@
       form_guida_relazione_titolo: 'Points à aborder',
       form_domanda_disponibilita_riospitare: 'Seriez-vous disponible pour accueillir une autre personne stagiaire Erasmus+ à l\'avenir ?',
       firma_etichetta: 'Signature électronique simple',
-      firma_testo: 'Je déclare vouloir signer le document généré par le système en tant que {{NOME}}. Je suis conscient(e) que mon accès authentifié via le lien personnel envoyé à {{EMAIL}} permet de m\'attribuer la signature, et que l\'intégrité du document est protégée par un identifiant unique de transaction enregistré par l\'établissement, conformément au règlement (UE) n° 910/2014 (eIDAS).',
+      firma_testo: 'Je déclare vouloir signer le document généré par le système en tant que {{NOME}}. Je suis conscient(e) que mon accès authentifié via le lien personnel envoyé à mon adresse email permet de m\'attribuer la signature, et que l\'intégrité du document est protégée par un identifiant unique de transaction enregistré par l\'établissement, conformément au règlement (UE) n° 910/2014 (eIDAS).',
       privacy_etichetta: 'Information sur la protection des données',
       privacy_testo: 'Je déclare avoir pris connaissance de la note d\'information de l\'établissement sur le traitement des données personnelles ({{LINK}}) et je suis conscient(e) que les données recueillies seront traitées exclusivement aux fins institutionnelles liées à la gestion, à la documentation et au compte rendu du projet Erasmus+, conformément au règlement (UE) 2016/679 (RGPD).',
       privacy_link_testo: 'consultable ici',
@@ -933,12 +934,13 @@
     de: {
       marchio: 'Erasmus+ VET · Betreuer-Bewertung',
       accesso_titolo: 'Zugang zu Ihrem Bereich',
-      accesso_sottotitolo: 'Geben Sie Ihren Namen oder Ihre E-Mail ein, um den Zugangslink zu erhalten.',
-      accesso_etichetta_campo: 'Name oder E-Mail',
-      accesso_placeholder: 'z. B. Marie Dubois oder marie.dubois@firma.de',
+      accesso_sottotitolo: 'Geben Sie Ihre E-Mail-Adresse ein, um den Zugangslink zu erhalten.',
+      accesso_etichetta_campo: 'E-Mail',
+      accesso_placeholder: '',
       accesso_bottone_cerca: 'Weiter',
       saluto_connesso: 'Angemeldet als',
-      accesso_errore_non_trovato: 'Wir finden diesen Namen oder diese E-Mail nicht in unserer Liste. Bitte überprüfen Sie die Eingabe.',
+      accesso_errore_non_trovato: 'Wir finden diese E-Mail nicht in unserer Liste. Bitte überprüfen Sie die Eingabe.',
+      accesso_errore_formato: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
       candidati_titolo: 'Wir haben mehrere Treffer gefunden — wählen Sie Ihren Namen:',
       invio_bottone: 'Zugangslink senden an',
       attesa_titolo: 'Prüfen Sie Ihre E-Mail',
@@ -972,7 +974,7 @@
       form_guida_relazione_titolo: 'Zu behandelnde Punkte',
       form_domanda_disponibilita_riospitare: 'Wären Sie bereit, in Zukunft eine weitere Erasmus+ Praktikumsperson aufzunehmen?',
       firma_etichetta: 'Einfache elektronische Signatur',
-      firma_testo: 'Ich erkläre meine Absicht, das vom System erstellte Dokument als {{NOME}} zu unterzeichnen. Mir ist bewusst, dass mein authentifizierter Zugang über den an {{EMAIL}} gesendeten persönlichen Link die Signatur mir zuordnet und dass die Integrität des Dokuments durch eine von der Schule registrierte eindeutige Transaktions-ID geschützt wird, gemäß der Verordnung (EU) Nr. 910/2014 (eIDAS).',
+      firma_testo: 'Ich erkläre meine Absicht, das vom System erstellte Dokument als {{NOME}} zu unterzeichnen. Mir ist bewusst, dass mein authentifizierter Zugang über den an meine E-Mail-Adresse gesendeten persönlichen Link die Signatur mir zuordnet und dass die Integrität des Dokuments durch eine von der Schule registrierte eindeutige Transaktions-ID geschützt wird, gemäß der Verordnung (EU) Nr. 910/2014 (eIDAS).',
       privacy_etichetta: 'Datenschutzhinweise',
       privacy_testo: 'Ich erkläre, die Datenschutzhinweise der Schule zur Verarbeitung personenbezogener Daten ({{LINK}}) gelesen zu haben, und mir ist bewusst, dass die erhobenen Daten ausschließlich für institutionelle Zwecke im Zusammenhang mit der Verwaltung, Dokumentation und Berichterstattung des Erasmus+-Projekts verarbeitet werden, im Einklang mit der Verordnung (EU) 2016/679 (DSGVO).',
       privacy_link_testo: 'hier abrufbar',
@@ -990,12 +992,13 @@
     en: {
       marchio: 'Erasmus+ VET · Tutor Evaluation',
       accesso_titolo: 'Access your area',
-      accesso_sottotitolo: 'Enter your name or email to receive your access link.',
-      accesso_etichetta_campo: 'Name or email',
-      accesso_placeholder: 'e.g. Marie Dubois or marie.dubois@company.ie',
+      accesso_sottotitolo: 'Enter your email address to receive your access link.',
+      accesso_etichetta_campo: 'Email',
+      accesso_placeholder: '',
       accesso_bottone_cerca: 'Continue',
       saluto_connesso: 'Signed in as',
-      accesso_errore_non_trovato: 'We can\'t find this name or email in our list. Please check the spelling.',
+      accesso_errore_non_trovato: 'We can\'t find this email in our list. Please check the spelling.',
+      accesso_errore_formato: 'Please enter a valid email address.',
       candidati_titolo: 'We found several matches — select your name:',
       invio_bottone: 'Send access link to',
       attesa_titolo: 'Check your email',
@@ -1029,7 +1032,7 @@
       form_guida_relazione_titolo: 'Points to address',
       form_domanda_disponibilita_riospitare: 'Would you be willing to host another Erasmus+ trainee in the future?',
       firma_etichetta: 'Simple electronic signature',
-      firma_testo: 'I declare my intention to sign the document generated by the system as {{NOME}}. I am aware that my authenticated access via the personal link sent to {{EMAIL}} attributes the signature to me, and that the integrity of the document is protected by a unique transaction ID recorded by the school, pursuant to Regulation (EU) No 910/2014 (eIDAS).',
+      firma_testo: 'I declare my intention to sign the document generated by the system as {{NOME}}. I am aware that my authenticated access via the personal access link sent to my email address attributes the signature to me, and that the integrity of the document is protected by a unique transaction ID recorded by the school, pursuant to Regulation (EU) No 910/2014 (eIDAS).',
       privacy_etichetta: 'Privacy notice',
       privacy_testo: 'I declare that I have read the school\'s notice on the processing of personal data ({{LINK}}) and I am aware that the data collected will be processed exclusively for institutional purposes related to the management, documentation and reporting of the Erasmus+ project, in accordance with Regulation (EU) 2016/679 (GDPR).',
       privacy_link_testo: 'available here',
@@ -1047,12 +1050,13 @@
     es: {
       marchio: 'Erasmus+ VET · Evaluación del Tutor',
       accesso_titolo: 'Accede a tu área',
-      accesso_sottotitolo: 'Introduce tu nombre o email para recibir el enlace de acceso.',
-      accesso_etichetta_campo: 'Nombre o email',
-      accesso_placeholder: 'ej. Marie Dubois o marie.dubois@empresa.es',
+      accesso_sottotitolo: 'Introduce tu dirección de email para recibir el enlace de acceso.',
+      accesso_etichetta_campo: 'Email',
+      accesso_placeholder: '',
       accesso_bottone_cerca: 'Continuar',
       saluto_connesso: 'Conectado/a como',
-      accesso_errore_non_trovato: 'No encontramos ese nombre o email en nuestra lista. Comprueba que esté bien escrito.',
+      accesso_errore_non_trovato: 'No encontramos ese email en nuestra lista. Comprueba que esté bien escrito.',
+      accesso_errore_formato: 'Introduce una dirección de email válida.',
       candidati_titolo: 'Hemos encontrado varios resultados — selecciona tu nombre:',
       invio_bottone: 'Enviar enlace de acceso a',
       attesa_titolo: 'Revisa tu email',
@@ -1086,7 +1090,7 @@
       form_guida_relazione_titolo: 'Puntos a tratar',
       form_domanda_disponibilita_riospitare: '¿Estaría dispuesto/a a acoger a otra persona en prácticas Erasmus+ en el futuro?',
       firma_etichetta: 'Firma electrónica simple',
-      firma_testo: 'Declaro mi voluntad de firmar el documento generado por el sistema como {{NOME}}. Soy consciente de que mi acceso autenticado mediante el enlace personal enviado a {{EMAIL}} permite atribuirme la firma, y de que la integridad del documento está protegida por un identificador único de transacción registrado por el centro, de conformidad con el Reglamento (UE) n.º 910/2014 (eIDAS).',
+      firma_testo: 'Declaro mi voluntad de firmar el documento generado por el sistema como {{NOME}}. Soy consciente de que mi acceso autenticado mediante el enlace personal enviado a mi dirección de correo electrónico permite atribuirme la firma, y de que la integridad del documento está protegida por un identificador único de transacción registrado por el centro, de conformidad con el Reglamento (UE) n.º 910/2014 (eIDAS).',
       privacy_etichetta: 'Información sobre protección de datos',
       privacy_testo: 'Declaro haber leído la información del centro sobre el tratamiento de datos personales ({{LINK}}) y soy consciente de que los datos recogidos se tratarán exclusivamente para fines institucionales relacionados con la gestión, documentación y justificación del proyecto Erasmus+, de conformidad con el Reglamento (UE) 2016/679 (RGPD).',
       privacy_link_testo: 'disponible aquí',
@@ -1178,7 +1182,6 @@
   // refresh).
   let studenteCorrente = null;
   let nomeTutorCorrente = null;  // per il saluto di cortesia e il testo del consenso di firma
-  let emailTutorCorrente = null; // per il testo del consenso di firma ("...autenticato con {{EMAIL}}")
   // Il client non conosce mai l'email in chiaro del tutor prima
   // dell'autenticazione: cercaTutor restituisce id_tutor + email
   // mascherata (m***@e***.fr), e richiediLinkAccesso lavora per
@@ -1405,7 +1408,6 @@
     chiamaApi('elencoStudentiPerTutor', {}, tokenSessione)
       .then(function (risultato) {
         nomeTutorCorrente = risultato.nomeTutor || '';
-        emailTutorCorrente = risultato.emailTutor || '';
         mostraSalutoTutor();
         gestisciElencoStudenti(risultato.studenti);
       })
@@ -1694,29 +1696,30 @@
    *  Non tocca MAI lo stato delle caselle: al cambio lingua le spunte
    *  già date restano. L'azzeramento avviene solo in apriModulo. */
   function aggiornaAreaConsensi() {
-    // Diagnostica per un bug già osservato: se questi due valori sono
-    // vuoti qui, il testo di consenso mostrerà "{{NOME}}"/"{{EMAIL}}"
-    // sostituiti con nulla — visivamente "manca l'indirizzo email". La
-    // causa più probabile NON è qui (la funzione che li imposta,
-    // caricaAreaTutor, li legge da elencoStudentiPerTutor ed è corretta
-    // in questo file): se compare questo avviso, il sospetto numero uno
-    // è un disallineamento tra il codice caricato qui e quello
-    // effettivamente pubblicato — GitHub Pages non aggiornato, oppure
-    // Api.gs modificato ma non ri-implementato (Deploy → Gestisci
-    // implementazioni → matita → Implementa, v. documentazione §11).
-    if (!nomeTutorCorrente || !emailTutorCorrente) {
-      console.warn(
-        'aggiornaAreaConsensi: nomeTutorCorrente o emailTutorCorrente sono vuoti.',
-        { nomeTutorCorrente: nomeTutorCorrente, emailTutorCorrente: emailTutorCorrente }
-      );
+    // Diagnostica: se nomeTutorCorrente è vuoto qui, il testo di consenso
+    // mostrerà "{{NOME}}" sostituito con nulla. La causa più probabile
+    // NON è in questo file (caricaAreaTutor lo imposta leggendolo da
+    // elencoStudentiPerTutor, ed è corretto): se compare questo avviso,
+    // il sospetto numero uno è un disallineamento tra il codice caricato
+    // qui e quello effettivamente pubblicato — GitHub Pages non
+    // aggiornato, oppure Api.gs modificato ma non ri-implementato
+    // (Deploy → Gestisci implementazioni → matita → Implementa, v.
+    // documentazione §11).
+    if (!nomeTutorCorrente) {
+      console.warn('aggiornaAreaConsensi: nomeTutorCorrente è vuoto.');
     }
 
     document.getElementById('etichetta-consenso-firma').textContent = t('firma_etichetta');
     document.getElementById('etichetta-consenso-privacy').textContent = t('privacy_etichetta');
 
+    // Il testo non contiene più {{EMAIL}} (era la fonte del problema
+    // "manca l'indirizzo email" mai risolto lato dati): la frase è stata
+    // riformulata per non dipendere da un valore interpolato al volo,
+    // mantenendo lo stesso significato ("link personale inviato al
+    // proprio indirizzo email", senza mostrarlo). {{NOME}} resta,
+    // essendo sempre arrivato correttamente.
     document.getElementById('testo-consenso-firma').innerHTML = escapeHtml(t('firma_testo'))
-      .replace('{{NOME}}', '<strong>' + escapeHtml(nomeTutorCorrente) + '</strong>')
-      .replace('{{EMAIL}}', '<strong>' + escapeHtml(emailTutorCorrente) + '</strong>');
+      .replace('{{NOME}}', '<strong>' + escapeHtml(nomeTutorCorrente) + '</strong>');
 
     const linkPrivacy = '<a href="' + URL_PRIVACY_POLICY + '" target="_blank" rel="noopener" ' +
       'onclick="event.stopPropagation()">' + escapeHtml(t('privacy_link_testo')) + '</a>';
@@ -2196,9 +2199,22 @@
   // ------------------------------------------------------------------
   function cercaTutorDaForm() {
     const bottone = document.getElementById('bottone-cerca-tutor');
-    const valore = document.getElementById('campo-ricerca-tutor').value;
-    document.getElementById('errore-ricerca').style.display = 'none';
+    const campo = document.getElementById('campo-ricerca-tutor');
+    const valore = campo.value.trim();
+    const erroreRicerca = document.getElementById('errore-ricerca');
+    erroreRicerca.style.display = 'none';
     document.getElementById('elenco-candidati-tutor').style.display = 'none';
+
+    // Controllo di formato lato client (type="email" + checkValidity):
+    // solo per dare un messaggio immediato e specifico su un refuso
+    // ovvio (manca la @, campo vuoto...), non è una barriera di
+    // sicurezza — cercaTutor lato server resta comunque valido per
+    // qualunque stringa e risponde "non_trovato" se non collima.
+    if (!valore || !campo.checkValidity()) {
+      erroreRicerca.textContent = t('accesso_errore_formato');
+      erroreRicerca.style.display = 'block';
+      return;
+    }
 
     eseguiConCaricamento(bottone, function () {
       return chiamaApi('cercaTutor', { query: valore })
