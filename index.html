@@ -452,6 +452,15 @@
   .intestazione-form {
     margin-bottom: 20px;
   }
+
+  /* Piccola rassicurazione sotto il titolo del form: le risposte si
+     salvano da sole, niente panico se cade la connessione o si chiude
+     per sbaglio il browser. Discreta apposta, non è un avviso. */
+  .nota-bozza {
+    font-size: 12px;
+    color: var(--colore-testo-secondario);
+    margin: -12px 0 20px;
+  }
   .bottone-indietro-form {
     background: none;
     border: none;
@@ -802,6 +811,7 @@
             <button id="bottone-indietro-form" class="bottone-indietro-form" data-i18n="form_bottone_indietro">← Back to forms</button>
             <h1 id="titolo-form-modulo" class="titolo-schermata"></h1>
           </div>
+          <p class="nota-bozza" data-i18n="form_nota_bozza">Your answers are saved automatically on this device as you type.</p>
           <div id="corpo-form-modulo"></div>
 
           <!-- Consensi obbligatori, comuni ai 3 moduli: stanno FUORI da
@@ -897,7 +907,8 @@
       stato_da_compilare: 'À compléter',
       form_bottone_indietro: '← Retour aux formulaires',
       moduli_bottone_studenti: '← Changer d\'étudiant(e)',
-      form_conferma_uscita: 'Voulez-vous vraiment quitter ? Les réponses saisies seront perdues.',
+      form_conferma_uscita: 'Vos réponses sont enregistrées comme brouillon sur cet appareil — vous pourrez reprendre plus tard. Quitter quand même ?',
+      form_nota_bozza: 'Vos réponses sont enregistrées automatiquement sur cet appareil au fur et à mesure.',
       form_etichetta_descrizione_mansione: 'Description du poste',
       form_etichetta_compiti_affidati: 'Tâches confiées au/à la stagiaire',
       form_etichetta_relazione: 'Votre rapport',
@@ -953,7 +964,8 @@
       stato_da_compilare: 'Ausstehend',
       form_bottone_indietro: '← Zurück zu den Formularen',
       moduli_bottone_studenti: '← Studierende/n wechseln',
-      form_conferma_uscita: 'Möchten Sie wirklich verlassen? Die eingegebenen Antworten gehen verloren.',
+      form_conferma_uscita: 'Ihre Antworten werden als Entwurf auf diesem Gerät gespeichert — Sie können später fortfahren. Trotzdem verlassen?',
+      form_nota_bozza: 'Ihre Antworten werden während der Eingabe automatisch auf diesem Gerät gespeichert.',
       form_etichetta_descrizione_mansione: 'Beschreibung der Tätigkeit',
       form_etichetta_compiti_affidati: 'Der Praktikumsperson übertragene Aufgaben',
       form_etichetta_relazione: 'Ihr Bericht',
@@ -1009,7 +1021,8 @@
       stato_da_compilare: 'Pending',
       form_bottone_indietro: '← Back to forms',
       moduli_bottone_studenti: '← Change student',
-      form_conferma_uscita: 'Are you sure you want to leave? Your answers will be lost.',
+      form_conferma_uscita: 'Your answers are saved as a draft on this device — you can resume later. Leave anyway?',
+      form_nota_bozza: 'Your answers are saved automatically on this device as you type.',
       form_etichetta_descrizione_mansione: 'Job description',
       form_etichetta_compiti_affidati: 'Tasks assigned to the trainee',
       form_etichetta_relazione: 'Your report',
@@ -1065,7 +1078,8 @@
       stato_da_compilare: 'Pendiente',
       form_bottone_indietro: '← Volver a los formularios',
       moduli_bottone_studenti: '← Cambiar de estudiante',
-      form_conferma_uscita: '¿Seguro que quieres salir? Las respuestas introducidas se perderán.',
+      form_conferma_uscita: 'Tus respuestas se guardan como borrador en este dispositivo — puedes continuar más tarde. ¿Salir de todas formas?',
+      form_nota_bozza: 'Tus respuestas se guardan automáticamente en este dispositivo mientras escribes.',
       form_etichetta_descrizione_mansione: 'Descripción del puesto',
       form_etichetta_compiti_affidati: 'Tareas asignadas a la persona en prácticas',
       form_etichetta_relazione: 'Su informe',
@@ -1430,8 +1444,8 @@
     studenti.forEach(function (studente) {
       const voce = document.createElement('li');
       voce.innerHTML =
-        '<div class="nome-candidato">' + (studente.nomeStudente || studente.idStudente) + '</div>' +
-        '<div class="email-candidato">' + studente.azienda + ' — ' + studente.destinazione + '</div>';
+        '<div class="nome-candidato">' + escapeHtml(studente.nomeStudente || studente.idStudente) + '</div>' +
+        '<div class="email-candidato">' + escapeHtml(studente.azienda) + ' — ' + escapeHtml(studente.destinazione) + '</div>';
       voce.onclick = function () {
         eseguiConCaricamento(voce, function () { return selezionaStudente(studente); });
       };
@@ -1605,6 +1619,7 @@
 
     if (datiDomandeCache) {
       renderFormModulo(tipo);
+      ripristinaBozzaSalvata(tipo);
       return Promise.resolve();
     }
 
@@ -1614,6 +1629,7 @@
       .then(function (risultato) {
         datiDomandeCache = risultato;
         renderFormModulo(tipo);
+        ripristinaBozzaSalvata(tipo);
       })
       .catch(function (errore) {
         if (errore === 'sessione_non_valida') {
@@ -1678,6 +1694,23 @@
    *  Non tocca MAI lo stato delle caselle: al cambio lingua le spunte
    *  già date restano. L'azzeramento avviene solo in apriModulo. */
   function aggiornaAreaConsensi() {
+    // Diagnostica per un bug già osservato: se questi due valori sono
+    // vuoti qui, il testo di consenso mostrerà "{{NOME}}"/"{{EMAIL}}"
+    // sostituiti con nulla — visivamente "manca l'indirizzo email". La
+    // causa più probabile NON è qui (la funzione che li imposta,
+    // caricaAreaTutor, li legge da elencoStudentiPerTutor ed è corretta
+    // in questo file): se compare questo avviso, il sospetto numero uno
+    // è un disallineamento tra il codice caricato qui e quello
+    // effettivamente pubblicato — GitHub Pages non aggiornato, oppure
+    // Api.gs modificato ma non ri-implementato (Deploy → Gestisci
+    // implementazioni → matita → Implementa, v. documentazione §11).
+    if (!nomeTutorCorrente || !emailTutorCorrente) {
+      console.warn(
+        'aggiornaAreaConsensi: nomeTutorCorrente o emailTutorCorrente sono vuoti.',
+        { nomeTutorCorrente: nomeTutorCorrente, emailTutorCorrente: emailTutorCorrente }
+      );
+    }
+
     document.getElementById('etichetta-consenso-firma').textContent = t('firma_etichetta');
     document.getElementById('etichetta-consenso-privacy').textContent = t('privacy_etichetta');
 
@@ -1965,6 +1998,75 @@
     });
   }
 
+  // ------------------------------------------------------------------
+  // Bozza automatica: mentre il tutor compila un questionario lungo
+  // (Finale/Relazione), le risposte vengono salvate in localStorage ad
+  // ogni modifica — non solo tenute in memoria come per il cambio
+  // lingua. Così una connessione che cade, una chiusura per sbaglio del
+  // browser o dell'app non fanno perdere il lavoro: riaprendo lo stesso
+  // modulo per lo stesso studente (anche in una sessione successiva,
+  // sullo stesso dispositivo) le risposte tornano al loro posto. La
+  // chiave include studente + tipo modulo, così un tutor con più
+  // studenti non vede mai mescolarsi le bozze tra loro. Si cancella
+  // solo quando l'invio va a buon fine (inviaModuloCorrente).
+  // ------------------------------------------------------------------
+  function chiaveBozza(idStudente, tipo) {
+    return 'bozza_' + idStudente + '_' + tipo;
+  }
+
+  function salvaBozzaCorrente() {
+    if (!tipoModuloCorrente || !studenteCorrente) return;
+    const raccolta = raccogliRisposteModuloCorrente();
+    if (!raccolta) return;
+    try {
+      localStorage.setItem(
+        chiaveBozza(studenteCorrente.idStudente, tipoModuloCorrente),
+        JSON.stringify(raccolta.valori)
+      );
+    } catch (e) {
+      // localStorage pieno o non disponibile (es. navigazione privata
+      // su alcuni browser): l'autosalvataggio è un extra, non deve
+      // rompere la compilazione se per qualche motivo fallisce.
+    }
+  }
+
+  /** @return {object|null} la bozza salvata, o null se non esiste / è
+   *  corrotta (JSON.parse fallito — non deve mai lanciare un errore che
+   *  blocca l'apertura del form). */
+  function caricaBozza(idStudente, tipo) {
+    try {
+      const grezzo = localStorage.getItem(chiaveBozza(idStudente, tipo));
+      return grezzo ? JSON.parse(grezzo) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function cancellaBozza(idStudente, tipo) {
+    localStorage.removeItem(chiaveBozza(idStudente, tipo));
+  }
+
+  // Salvataggio con un piccolo ritardo (debounce): un evento
+  // input/change per ogni tasto premuto in una textarea lunga (la
+  // Relazione arriva a 20.000 caratteri) scriverebbe su localStorage
+  // troppo spesso. 400ms è abbastanza breve da non perdere nulla se il
+  // browser si chiude subito dopo l'ultima modifica, abbastanza lungo
+  // da non scrivere ad ogni singolo tasto.
+  let timerBozza = null;
+  function pianificaSalvataggioBozza() {
+    if (timerBozza) clearTimeout(timerBozza);
+    timerBozza = setTimeout(salvaBozzaCorrente, 400);
+  }
+
+  /** Se esiste una bozza salvata in precedenza per questo studente+modulo,
+   *  la rimette nei campi appena il form è stato costruito. Le caselle di
+   *  consenso NON fanno parte della bozza: si azzerano sempre all'apertura
+   *  (azzeraConsensi), per scelta — vanno riespresse ad ogni ripresa. */
+  function ripristinaBozzaSalvata(tipo) {
+    const bozza = caricaBozza(studenteCorrente.idStudente, tipo);
+    if (bozza) ripristinaValoriForm(bozza);
+  }
+
   /** Evidenzia in rosso le domande/campi mancanti, ripulendo prima
    *  eventuali evidenziazioni di un tentativo di invio precedente. */
   function evidenziaErrori(idMancanti) {
@@ -2038,6 +2140,7 @@
           }
           return;
         }
+        cancellaBozza(studenteCorrente.idStudente, tipoInInvio);
         tipoModuloCorrente = null;
         mostraSchermata('schermata-conferma-form');
       })
@@ -2066,6 +2169,15 @@
   document.getElementById('bottone-cambia-studente').onclick = function () {
     mostraSchermata('schermata-selezione-studente');
   };
+
+  // Autosalvataggio bozza: un solo listener su un contenitore che resta
+  // sempre nel DOM (il contenuto interno viene ricostruito ad ogni
+  // apertura/cambio lingua, ma l'ascoltatore sul contenitore sopravvive
+  // — funziona anche sugli elementi ricreati grazie alla delega degli
+  // eventi). 'input' copre le textarea mentre si scrive, 'change' copre
+  // la selezione delle pillole radio.
+  document.getElementById('corpo-form-modulo').addEventListener('input', pianificaSalvataggioBozza);
+  document.getElementById('corpo-form-modulo').addEventListener('change', pianificaSalvataggioBozza);
 
   document.getElementById('bottone-indietro-form').onclick = function () {
     if (formHaRisposteInserite() && !window.confirm(t('form_conferma_uscita'))) return;
@@ -2116,8 +2228,8 @@
     risultato.candidati.forEach(function (candidato) {
       const voce = document.createElement('li');
       voce.innerHTML =
-        '<div class="nome-candidato">' + candidato.nome + '</div>' +
-        '<div class="email-candidato">' + candidato.emailMascherata + '</div>';
+        '<div class="nome-candidato">' + escapeHtml(candidato.nome) + '</div>' +
+        '<div class="email-candidato">' + escapeHtml(candidato.emailMascherata) + '</div>';
       // Sincrona (solo stato locale, nessuna chiamata API): non serve
       // l'helper anti-doppio-tap qui.
       voce.onclick = function () { predisponiInvioLink(candidato); };
