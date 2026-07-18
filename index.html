@@ -744,6 +744,7 @@
           <label for="campo-ricerca-tutor" data-i18n="accesso_etichetta_campo">Email</label>
           <input type="email" id="campo-ricerca-tutor" data-i18n-placeholder="accesso_placeholder" placeholder="" autocomplete="email">
           <div id="errore-ricerca" class="messaggio-errore" style="display:none;"></div>
+          <div class="messaggio-avviso" data-i18n="accesso_nota_spam"></div>
           <ul id="elenco-candidati-tutor" class="elenco-candidati" style="display:none;"></ul>
           <button id="bottone-cerca-tutor" class="bottone bottone-primario" data-i18n="accesso_bottone_cerca">Continue</button>
           <button id="bottone-invia-link" class="bottone bottone-accento" style="display:none; margin-top:12px;"></button>
@@ -753,7 +754,7 @@
         <div id="schermata-attesa-invio" class="schermata">
           <h1 class="titolo-schermata" data-i18n="attesa_titolo">Check your email</h1>
           <p class="sottotitolo" data-i18n="attesa_testo">We've sent you an access link. Open it on your device to continue.</p>
-          <div id="avviso-spam" class="messaggio-avviso" style="display:none;" data-i18n="attesa_avviso_spam"></div>
+          <div id="avviso-spam" class="messaggio-avviso" data-i18n="attesa_avviso_spam"></div>
           <button id="bottone-reinvia" class="bottone-testo" style="display:none;" data-i18n="attesa_bottone_reinvia"></button>
         </div>
 
@@ -883,8 +884,10 @@
       saluto_connesso: 'Connecté(e) en tant que',
       accesso_errore_non_trovato: 'Nous ne trouvons pas cet email dans notre liste. Vérifiez l\'orthographe.',
       accesso_errore_formato: 'Veuillez saisir une adresse email valide.',
+      accesso_nota_spam: 'Astuce : le lien d\'accès arrive parfois dans le dossier Spam/Courrier indésirable — pensez à vérifier aussi là-bas.',
       candidati_titolo: 'Nous avons trouvé plusieurs résultats — sélectionnez votre nom :',
       invio_bottone: 'Envoyer le lien d\'accès à',
+      bottone_email_riconosciuta: 'EMAIL RECONNU - ENVOYER LE LIEN',
       attesa_titolo: 'Consultez votre email',
       attesa_testo: 'Nous vous avons envoyé un lien d\'accès. Ouvrez-le depuis votre appareil pour continuer.',
       attesa_avviso_spam: 'Vous n\'avez rien reçu ? Vérifiez aussi votre dossier Spam/Courrier indésirable.',
@@ -941,8 +944,10 @@
       saluto_connesso: 'Angemeldet als',
       accesso_errore_non_trovato: 'Wir finden diese E-Mail nicht in unserer Liste. Bitte überprüfen Sie die Eingabe.',
       accesso_errore_formato: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+      accesso_nota_spam: 'Tipp: Der Zugangslink landet manchmal im Spam-/Junk-Ordner — schauen Sie notfalls auch dort nach.',
       candidati_titolo: 'Wir haben mehrere Treffer gefunden — wählen Sie Ihren Namen:',
       invio_bottone: 'Zugangslink senden an',
+      bottone_email_riconosciuta: 'E-MAIL ERKANNT - LINK SENDEN',
       attesa_titolo: 'Prüfen Sie Ihre E-Mail',
       attesa_testo: 'Wir haben Ihnen einen Zugangslink gesendet. Öffnen Sie ihn auf Ihrem Gerät, um fortzufahren.',
       attesa_avviso_spam: 'Nichts erhalten? Prüfen Sie auch Ihren Spam-/Junk-Ordner.',
@@ -999,8 +1004,10 @@
       saluto_connesso: 'Signed in as',
       accesso_errore_non_trovato: 'We can\'t find this email in our list. Please check the spelling.',
       accesso_errore_formato: 'Please enter a valid email address.',
+      accesso_nota_spam: 'Tip: the access link sometimes ends up in your Spam/Junk folder — check there too if you don\'t see it in your inbox.',
       candidati_titolo: 'We found several matches — select your name:',
       invio_bottone: 'Send access link to',
+      bottone_email_riconosciuta: 'EMAIL RECOGNIZED - SEND LINK',
       attesa_titolo: 'Check your email',
       attesa_testo: 'We\'ve sent you an access link. Open it on your device to continue.',
       attesa_avviso_spam: 'Didn\'t receive anything? Check your Spam/Junk folder too.',
@@ -1057,8 +1064,10 @@
       saluto_connesso: 'Conectado/a como',
       accesso_errore_non_trovato: 'No encontramos ese email en nuestra lista. Comprueba que esté bien escrito.',
       accesso_errore_formato: 'Introduce una dirección de email válida.',
+      accesso_nota_spam: 'Consejo: el enlace de acceso a veces llega a la carpeta de Spam/Correo no deseado — revisa también ahí si no lo ves.',
       candidati_titolo: 'Hemos encontrado varios resultados — selecciona tu nombre:',
       invio_bottone: 'Enviar enlace de acceso a',
+      bottone_email_riconosciuta: 'EMAIL RECONOCIDO - ENVIAR ENLACE',
       attesa_titolo: 'Revisa tu email',
       attesa_testo: 'Te hemos enviado un enlace de acceso. Ábrelo desde tu dispositivo para continuar.',
       attesa_avviso_spam: '¿No has recibido nada? Revisa también tu carpeta de Spam/Correo no deseado.',
@@ -2258,7 +2267,11 @@
   function predisponiInvioLink(tutor) {
     tutorInAttesaDiConferma = { idTutor: tutor.idTutor, emailMascherata: tutor.emailMascherata };
     const bottoneInvio = document.getElementById('bottone-invia-link');
-    bottoneInvio.textContent = t('invio_bottone') + ' ' + tutor.emailMascherata;
+    // Non più "Invia link a m***@e***.it": con la ricerca ristretta alla
+    // sola email (v. schermata di accesso), il tutor ha già davanti
+    // quello che ha appena scritto — ripeterglielo mascherato è solo
+    // rumore. Un testo fisso che conferma il riconoscimento basta.
+    bottoneInvio.textContent = t('bottone_email_riconosciuta');
     bottoneInvio.style.display = 'block';
     bottoneInvio.onclick = function () { inviaLinkAccesso(bottoneInvio); };
   }
@@ -2280,17 +2293,20 @@
             return;
           }
           mostraSchermata('schermata-attesa-invio');
-          avviaTimerAvvisoSpam();
+          avviaTimerReinvio();
         })
         .catch(mostraErroreGenerico);
     }, { spinner: true });
   }
 
-  function avviaTimerAvvisoSpam() {
-    document.getElementById('avviso-spam').style.display = 'none';
+  /** Il bottone "reinvia" compare solo dopo 5 minuti: prima di allora
+   *  offrirlo servirebbe solo a far generare richieste doppie a chi non
+   *  ha ancora dato tempo alla prima email di arrivare. L'avviso spam,
+   *  invece, ora è visibile da subito (v. HTML) — niente attesa per un
+   *  suggerimento che può servire fin dal primo istante. */
+  function avviaTimerReinvio() {
     document.getElementById('bottone-reinvia').style.display = 'none';
     setTimeout(function () {
-      document.getElementById('avviso-spam').style.display = 'block';
       document.getElementById('bottone-reinvia').style.display = 'block';
     }, 5 * 60 * 1000);
   }
