@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Palette: blu istituzionale + oro — richiama l'identità Erasmus+/UE
+    /* Palette: blu istituzionale + oro - richiama l'identità Erasmus+/UE
        senza ricorrere ai default "da IA" (niente crema+terracotta, niente
        dark mode acido). */
     --colore-sfondo: #F5F6F8;
@@ -121,7 +121,7 @@
     color: #fff;
   }
 
-  /* Riga di cortesia mostrata solo nell'area autenticata — puro
+  /* Riga di cortesia mostrata solo nell'area autenticata -
      rassicurazione visiva per il tutor, nessun ruolo di sicurezza. */
   .saluto-tutor {
     display: none;
@@ -235,7 +235,7 @@
     width: 100%;
   }
 
-  /* Stato condiviso "richiesta in corso" — su bottoni E su righe/schede
+  /* Stato condiviso "richiesta in corso" - su bottoni E su righe/schede
      cliccabili (li, div), quindi niente proprietà specifiche di <button>.
      Il cursore "wait" + l'opacità ridotta bastano da soli come segnale su
      righe/schede; il mini-spinner (aggiunto via JS solo sui bottoni
@@ -294,7 +294,7 @@
   .elenco-candidati .nome-candidato { font-weight: 600; }
   .elenco-candidati .email-candidato { color: var(--colore-testo-secondario); font-size: 13px; }
 
-  /* Header con i dati del tirocinio, non fisso — scorre con la pagina */
+  /* Header con i dati del tirocinio, non fisso - scorre con la pagina */
   .scheda-info-studente {
     background: var(--colore-sfondo);
     border: 1px solid var(--colore-bordo);
@@ -568,7 +568,7 @@
     margin: 0 0 16px;
   }
 
-  /* Opzioni della rubrica VS/S/U: frasi intere, non pillole corte —
+  /* Opzioni della rubrica VS/S/U: frasi intere, non pillole corte -
      card verticali impilate, più leggibili di pillole orizzontali. */
   .opzioni-rubrica {
     display: flex;
@@ -629,7 +629,7 @@
   }
   .guida-relazione-voce:last-child { margin-bottom: 0; }
   .guida-relazione-voce::before {
-    content: '—';
+    content: '-';
     position: absolute;
     left: 0;
     color: var(--colore-testo-secondario);
@@ -698,7 +698,7 @@
 
     <div class="barra-superiore">
       <!-- Loghi istituzionali: i file vanno caricati nella cartella
-           assets/ del repo del frontend, con QUESTI nomi esatti —
+           assets/ del repo del frontend, con QUESTI nomi esatti -
            GitHub Pages gira su Linux ed è case-sensitive, quindi
            LOGO_MANZONI.png e logo_manzoni.png sono file diversi.
            Finché i file non ci sono, onerror nasconde l'immagine
@@ -856,7 +856,7 @@
           <p id="testo-errore" class="sottotitolo"></p>
           <!-- Mostrato solo per "token già usato": un tap per farsi
                rimandare un link nuovo, senza ripartire dalla ricerca del
-               proprio nome — vedi mostraErrore() in JS. -->
+               proprio nome - vedi mostraErrore() in JS. -->
           <button id="bottone-recupero-errore" class="bottone bottone-primario" style="display:none;"></button>
         </div>
 
@@ -868,7 +868,7 @@
 
 <script>
   // ------------------------------------------------------------------
-  // TRADUZIONI — pattern: un oggetto per chiave UI, non stringhe
+  // TRADUZIONI - pattern: un oggetto per chiave UI, non stringhe
   // sparse nel codice. Copertura: tutte le schermate, inclusi i testi
   // di consenso firma/privacy (già rivisti da madrelingua, vedi §9
   // della documentazione).
@@ -884,8 +884,8 @@
       saluto_connesso: 'Connecté(e) en tant que',
       accesso_errore_non_trovato: 'Nous ne trouvons pas cet email dans notre liste. Vérifiez l\'orthographe.',
       accesso_errore_formato: 'Veuillez saisir une adresse email valide.',
-      accesso_nota_spam: 'Astuce : le lien d\'accès arrive parfois dans le dossier Spam/Courrier indésirable — pensez à vérifier aussi là-bas.',
-      candidati_titolo: 'Nous avons trouvé plusieurs résultats — sélectionnez votre nom :',
+      accesso_nota_spam: 'Astuce : le lien d\'accès arrive parfois dans le dossier Spam/Courrier indésirable - pensez à vérifier aussi là-bas.',
+      candidati_titolo: 'Nous avons trouvé plusieurs résultats - sélectionnez votre nom :',
       invio_bottone: 'Envoyer le lien d\'accès à',
       bottone_email_riconosciuta: 'EMAIL RECONNU - ENVOYER LE LIEN',
       attesa_titolo: 'Consultez votre email',
@@ -911,7 +911,7 @@
       stato_da_compilare: 'À compléter',
       form_bottone_indietro: '← Retour aux formulaires',
       moduli_bottone_studenti: '← Changer d\'étudiant(e)',
-      form_conferma_uscita: 'Vos réponses sont enregistrées comme brouillon sur cet appareil — vous pourrez reprendre plus tard. Quitter quand même ?',
+      form_conferma_uscita: 'Vos réponses sont enregistrées comme brouillon sur cet appareil - vous pourrez reprendre plus tard. Quitter quand même ?',
       form_nota_bozza: 'Vos réponses sont enregistrées automatiquement sur cet appareil au fur et à mesure.',
       form_etichetta_descrizione_mansione: 'Description du poste',
       form_etichetta_compiti_affidati: 'Tâches confiées au/à la stagiaire',
@@ -944,8 +944,8 @@
       saluto_connesso: 'Angemeldet als',
       accesso_errore_non_trovato: 'Wir finden diese E-Mail nicht in unserer Liste. Bitte überprüfen Sie die Eingabe.',
       accesso_errore_formato: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
-      accesso_nota_spam: 'Tipp: Der Zugangslink landet manchmal im Spam-/Junk-Ordner — schauen Sie notfalls auch dort nach.',
-      candidati_titolo: 'Wir haben mehrere Treffer gefunden — wählen Sie Ihren Namen:',
+      accesso_nota_spam: 'Tipp: Der Zugangslink landet manchmal im Spam-/Junk-Ordner - schauen Sie notfalls auch dort nach.',
+      candidati_titolo: 'Wir haben mehrere Treffer gefunden - wählen Sie Ihren Namen:',
       invio_bottone: 'Zugangslink senden an',
       bottone_email_riconosciuta: 'E-MAIL ERKANNT - LINK SENDEN',
       attesa_titolo: 'Prüfen Sie Ihre E-Mail',
@@ -971,7 +971,7 @@
       stato_da_compilare: 'Ausstehend',
       form_bottone_indietro: '← Zurück zu den Formularen',
       moduli_bottone_studenti: '← Studierende/n wechseln',
-      form_conferma_uscita: 'Ihre Antworten werden als Entwurf auf diesem Gerät gespeichert — Sie können später fortfahren. Trotzdem verlassen?',
+      form_conferma_uscita: 'Ihre Antworten werden als Entwurf auf diesem Gerät gespeichert - Sie können später fortfahren. Trotzdem verlassen?',
       form_nota_bozza: 'Ihre Antworten werden während der Eingabe automatisch auf diesem Gerät gespeichert.',
       form_etichetta_descrizione_mansione: 'Beschreibung der Tätigkeit',
       form_etichetta_compiti_affidati: 'Der Praktikumsperson übertragene Aufgaben',
@@ -1004,8 +1004,8 @@
       saluto_connesso: 'Signed in as',
       accesso_errore_non_trovato: 'We can\'t find this email in our list. Please check the spelling.',
       accesso_errore_formato: 'Please enter a valid email address.',
-      accesso_nota_spam: 'Tip: the access link sometimes ends up in your Spam/Junk folder — check there too if you don\'t see it in your inbox.',
-      candidati_titolo: 'We found several matches — select your name:',
+      accesso_nota_spam: 'Tip: the access link sometimes ends up in your Spam/Junk folder - check there too if you don\'t see it in your inbox.',
+      candidati_titolo: 'We found several matches - select your name:',
       invio_bottone: 'Send access link to',
       bottone_email_riconosciuta: 'EMAIL RECOGNIZED - SEND LINK',
       attesa_titolo: 'Check your email',
@@ -1031,7 +1031,7 @@
       stato_da_compilare: 'Pending',
       form_bottone_indietro: '← Back to forms',
       moduli_bottone_studenti: '← Change student',
-      form_conferma_uscita: 'Your answers are saved as a draft on this device — you can resume later. Leave anyway?',
+      form_conferma_uscita: 'Your answers are saved as a draft on this device - you can resume later. Leave anyway?',
       form_nota_bozza: 'Your answers are saved automatically on this device as you type.',
       form_etichetta_descrizione_mansione: 'Job description',
       form_etichetta_compiti_affidati: 'Tasks assigned to the trainee',
@@ -1064,8 +1064,8 @@
       saluto_connesso: 'Conectado/a como',
       accesso_errore_non_trovato: 'No encontramos ese email en nuestra lista. Comprueba que esté bien escrito.',
       accesso_errore_formato: 'Introduce una dirección de email válida.',
-      accesso_nota_spam: 'Consejo: el enlace de acceso a veces llega a la carpeta de Spam/Correo no deseado — revisa también ahí si no lo ves.',
-      candidati_titolo: 'Hemos encontrado varios resultados — selecciona tu nombre:',
+      accesso_nota_spam: 'Consejo: el enlace de acceso a veces llega a la carpeta de Spam/Correo no deseado - revisa también ahí si no lo ves.',
+      candidati_titolo: 'Hemos encontrado varios resultados - selecciona tu nombre:',
       invio_bottone: 'Enviar enlace de acceso a',
       bottone_email_riconosciuta: 'EMAIL RECONOCIDO - ENVIAR ENLACE',
       attesa_titolo: 'Revisa tu email',
@@ -1091,7 +1091,7 @@
       stato_da_compilare: 'Pendiente',
       form_bottone_indietro: '← Volver a los formularios',
       moduli_bottone_studenti: '← Cambiar de estudiante',
-      form_conferma_uscita: 'Tus respuestas se guardan como borrador en este dispositivo — puedes continuar más tarde. ¿Salir de todas formas?',
+      form_conferma_uscita: 'Tus respuestas se guardan como borrador en este dispositivo - puedes continuar más tarde. ¿Salir de todas formas?',
       form_nota_bozza: 'Tus respuestas se guardan automáticamente en este dispositivo mientras escribes.',
       form_etichetta_descrizione_mansione: 'Descripción del puesto',
       form_etichetta_compiti_affidati: 'Tareas asignadas a la persona en prácticas',
@@ -1170,7 +1170,7 @@
 
 <script>
   // ------------------------------------------------------------------
-  // URL_API — l'endpoint /exec di Apps Script. Stesso valore incollato
+  // URL_API - l'endpoint /exec di Apps Script. Stesso valore incollato
   // in Config.gs → URL_APP_PUBBLICO: sono due copie dello stesso
   // indirizzo in due progetti diversi, se cambia l'uno aggiorna l'altro.
   // ------------------------------------------------------------------
@@ -1179,14 +1179,14 @@
   // ------------------------------------------------------------------
   // Informativa privacy linkata nel consenso in fondo ai form.
   // ATTENZIONE: questo URL punta all'informativa "genitori e alunni"
-  // dell'Istituto — i tutor aziendali esteri sono una categoria di
+  // dell'Istituto - i tutor aziendali esteri sono una categoria di
   // interessati DIVERSA. Da sostituire con un'informativa dedicata (o
   // verificare col referente privacy che quella generale li copra)
   // prima dell'avvio reale. Vedi anche la nota sopra TRADUZIONI.
   // ------------------------------------------------------------------
   const URL_PRIVACY_POLICY = 'https://cspace.spaggiari.eu/pub/VAIM0001/PRIVACY/annotazione_INFORMATIVA%20GENITORI%20E%20ALUNNI%202025.pdf';
 
-  // Stato applicativo in memoria (mai in sessionStorage/cookie — solo
+  // Stato applicativo in memoria (mai in sessionStorage/cookie - solo
   // il token di sessione vive in localStorage, per sopravvivere ai
   // refresh).
   let studenteCorrente = null;
@@ -1194,7 +1194,7 @@
   // Il client non conosce mai l'email in chiaro del tutor prima
   // dell'autenticazione: cercaTutor restituisce id_tutor + email
   // mascherata (m***@e***.fr), e richiediLinkAccesso lavora per
-  // id_tutor — l'indirizzo vero lo risolve solo il server.
+  // id_tutor - l'indirizzo vero lo risolve solo il server.
   let tutorInAttesaDiConferma = null; // { idTutor, emailMascherata }
   let datiDomandeCache = null;   // popolata alla prima apertura di un form, riusata per gli altri
   let tipoModuloCorrente = null; // 'Intermedio' | 'Finale' | 'Relazione', null se nessun form è aperto
@@ -1208,7 +1208,7 @@
   // CORS che Apps Script non saprebbe gestire (non implementa OPTIONS).
   // Nessun cookie viaggia cross-origin per default con fetch(), quindi
   // la richiesta arriva a Google come anonima e il router multi-account
-  // /u/N/ — la causa di tutta questa migrazione — non si attiva mai.
+  // /u/N/ - la causa di tutta questa migrazione - non si attiva mai.
   //
   // Risolve con i "data" della risposta se ok:true a livello di
   // richiesta; rigetta con la stringa d'errore altrimenti (sessione
@@ -1239,7 +1239,7 @@
   // rischio concreto è che il tutor tocchi due volte pensando che il
   // primo tap non sia partito. Un solo meccanismo condiviso invece di
   // ripeterlo ad ogni punto che chiama l'API: disabilita l'elemento
-  // toccato (bottone O riga/scheda cliccabile — .disabled esiste solo
+  // toccato (bottone O riga/scheda cliccabile - .disabled esiste solo
   // sui <button>, .in-caricamento funziona su entrambi), lo ripristina
   // sempre al termine. Se l'elemento è già "in caricamento" un secondo
   // tap non fa nulla, invece di partire una seconda richiesta parallela.
@@ -1277,7 +1277,7 @@
    *   ed email MASCHERATA del destinatario del link. Se presente, mostra
    *   un bottone "Invia un nuovo link a m***@e***.fr" per un recupero in
    *   un tap, invece di rimandare il tutor daccapo alla ricerca del
-   *   proprio nome — è la causa più comune di confusione multi-dispositivo.
+   *   proprio nome - è la causa più comune di confusione multi-dispositivo.
    */
   function mostraErrore(chiaveMotivo, recupero) {
     const mappaMotivi = {
@@ -1311,7 +1311,7 @@
   }
 
   /** Riga di cortesia "Connesso come [nome]", visibile in tutta l'area
-   *  autenticata — puro rassicurazione visiva, ricalcolata ad ogni
+   *  autenticata - puro rassicurazione visiva, ricalcolata ad ogni
    *  cambio lingua perché il testo davanti al nome è tradotto. */
   function mostraSalutoTutor() {
     const el = document.getElementById('saluto-tutor');
@@ -1328,7 +1328,7 @@
   // dalla querystring. Il frammento non viene mai inviato al server
   // che ospita questa pagina (requisito di minimizzazione dati): lo
   // legge solo il browser, con window.location.hash. Non lo valida
-  // qui — la validazione scatta solo al click esplicito sul bottone
+  // qui - la validazione scatta solo al click esplicito sul bottone
   // della schermata di atterraggio (protezione anti-crawler).
   // ------------------------------------------------------------------
   function leggiTokenDaHash() {
@@ -1345,7 +1345,7 @@
 
   /**
    * Un dispositivo con una sessione già salvata la usa SEMPRE al posto
-   * del token del link, anche se il link è presente nell'URL — è lo
+   * del token del link, anche se il link è presente nell'URL - è lo
    * scenario più comune di "casino multi-dispositivo" segnalato: si
    * riapre la stessa mail sullo stesso telefono pensando che il primo
    * tap non sia partito, e il token è già stato consumato da quel primo
@@ -1456,7 +1456,7 @@
       const voce = document.createElement('li');
       voce.innerHTML =
         '<div class="nome-candidato">' + escapeHtml(studente.nomeStudente || studente.idStudente) + '</div>' +
-        '<div class="email-candidato">' + escapeHtml(studente.azienda) + ' — ' + escapeHtml(studente.destinazione) + '</div>';
+        '<div class="email-candidato">' + escapeHtml(studente.azienda) + ' - ' + escapeHtml(studente.destinazione) + '</div>';
       voce.onclick = function () {
         eseguiConCaricamento(voce, function () { return selezionaStudente(studente); });
       };
@@ -1481,7 +1481,7 @@
       elencoStudentiTutor.length > 1 ? 'block' : 'none';
 
     document.getElementById('info-nome-studente').textContent = studente.nomeStudente || studente.idStudente;
-    document.getElementById('info-azienda-studente').textContent = studente.azienda + (studente.destinazione ? ' — ' + studente.destinazione : '');
+    document.getElementById('info-azienda-studente').textContent = studente.azienda + (studente.destinazione ? ' - ' + studente.destinazione : '');
 
     const periodo = document.getElementById('info-periodo-studente');
     if (studente.dataInizioTirocinio || studente.dataFineTirocinio) {
@@ -1498,7 +1498,7 @@
 
     return chiamaApi('statoModuliPerStudente', { idStudente: studenteCorrente.idStudente }, tokenSessione)
       .then(function (risultato) {
-        // {ok:false, motivo:'studente_non_assegnato'} — non raggiungibile
+        // {ok:false, motivo:'studente_non_assegnato'} - non raggiungibile
         // navigando normalmente (gli studenti mostrati vengono dal server),
         // ma il server ora lo verifica sempre e il client non deve rompersi.
         if (!risultato.ok) {
@@ -1524,7 +1524,7 @@
   };
 
   // Sequenza dei moduli: Finale richiede l'Intermedio completato,
-  // Relazione richiede il Finale completato — coerente col percorso a
+  // Relazione richiede il Finale completato - coerente col percorso a
   // tappe già mostrato visivamente in cima alla schermata.
   const PREREQUISITO_MODULO = {
     Intermedio: null,
@@ -1601,7 +1601,7 @@
   }
 
   // ------------------------------------------------------------------
-  // Form dei moduli — apertura, costruzione dinamica, validazione, invio.
+  // Form dei moduli - apertura, costruzione dinamica, validazione, invio.
   // Un'unica schermata (#schermata-form-modulo) riusata per tutti e 3 i
   // tipi: #corpo-form-modulo viene svuotato e ricostruito ad ogni apertura
   // e ad ogni cambio lingua manuale, se il form è quello aperto in quel
@@ -1612,7 +1612,7 @@
    *  lo stesso fallback usato lato server: lingua corrente → inglese. Non
    *  c'è mai 'it' in questi dizionari (i tutor non sono mai italiani), quindi
    *  un tutor che sceglie IT vede l'inglese qui, pur avendo il resto
-   *  dell'interfaccia in italiano — comportamento voluto. */
+   *  dell'interfaccia in italiano - comportamento voluto. */
   function testoLocalizzato(dizionario) {
     if (!dizionario) return '';
     return dizionario[linguaCorrente] || dizionario.en || '';
@@ -1623,7 +1623,7 @@
    *  modo uniforme. Niente più schermata di caricamento a tutto schermo
    *  qui: l'apertura di un modulo (il payload più pesante dell'app,
    *  ~27KB di testi domande) resta sulla schermata moduli con un
-   *  mini-caricamento sulla scheda toccata — meno invasivo su mobile. */
+   *  mini-caricamento sulla scheda toccata - meno invasivo su mobile. */
   function apriModulo(tipo) {
     tipoModuloCorrente = tipo;
     azzeraConsensi(); // nuovo form = consensi da esprimere di nuovo
@@ -1710,7 +1710,7 @@
     // NON è in questo file (caricaAreaTutor lo imposta leggendolo da
     // elencoStudentiPerTutor, ed è corretto): se compare questo avviso,
     // il sospetto numero uno è un disallineamento tra il codice caricato
-    // qui e quello effettivamente pubblicato — GitHub Pages non
+    // qui e quello effettivamente pubblicato - GitHub Pages non
     // aggiornato, oppure Api.gs modificato ma non ri-implementato
     // (Deploy → Gestisci implementazioni → matita → Implementa, v.
     // documentazione §11).
@@ -1802,7 +1802,7 @@
   }
 
   /** Legge tutti i valori inseriti nel DOM per l'Intermedio. Ritorna sempre
-   *  tutti i valori (anche se vuoti) più l'elenco degli id mancanti — usata
+   *  tutti i valori (anche se vuoti) più l'elenco degli id mancanti - usata
    *  sia per il salvataggio (submit) sia per preservare le risposte già
    *  date quando si cambia lingua a metà compilazione (dove non si vuole
    *  bloccare su "mancanti", si vuole solo leggere quello che c'è). */
@@ -1846,7 +1846,7 @@
 
   /** Una voce della rubrica Finale: frasi intere per opzione (VS/S/U),
    *  card verticali invece delle pillole corte usate per l'Intermedio
-   *  (vedi .opzioni-rubrica in CSS — le frasi sono troppo lunghe per pillole). */
+   *  (vedi .opzioni-rubrica in CSS - le frasi sono troppo lunghe per pillole). */
   function voceRubricaHtml(voce) {
     const nomeGruppo = 'radio_' + voce.id;
     const chiaviRubrica = ['VS', 'S', 'U'];
@@ -1961,7 +1961,7 @@
   }
 
   /** A differenza degli altri due moduli, qui "mancante" include anche
-   *  il caso "troppo corto/lungo" per testo_relazione — la validazione
+   *  il caso "troppo corto/lungo" per testo_relazione - la validazione
    *  vera resta comunque server-side (_validaRisposteModulo in Api.gs),
    *  questo è solo un feedback immediato per evitare un giro a vuoto. */
   function raccogliRisposteRelazione() {
@@ -1983,7 +1983,7 @@
     return { valori: valori, mancanti: mancanti };
   }
 
-  /** Smista la raccolta valori in base al modulo aperto — usata sia per
+  /** Smista la raccolta valori in base al modulo aperto - usata sia per
    *  l'invio sia per preservare le risposte quando si cambia lingua a
    *  metà compilazione. */
   function raccogliRisposteModuloCorrente() {
@@ -1993,7 +1993,7 @@
     return null;
   }
 
-  /** Rimette nel DOM i valori raccolti in precedenza — usata dopo aver
+  /** Rimette nel DOM i valori raccolti in precedenza - usata dopo aver
    *  ricostruito l'HTML del form per un cambio lingua, per non perdere
    *  le risposte già date dal tutor. */
   function ripristinaValoriForm(valori) {
@@ -2013,7 +2013,7 @@
   // ------------------------------------------------------------------
   // Bozza automatica: mentre il tutor compila un questionario lungo
   // (Finale/Relazione), le risposte vengono salvate in localStorage ad
-  // ogni modifica — non solo tenute in memoria come per il cambio
+  // ogni modifica - non solo tenute in memoria come per il cambio
   // lingua. Così una connessione che cade, una chiusura per sbaglio del
   // browser o dell'app non fanno perdere il lavoro: riaprendo lo stesso
   // modulo per lo stesso studente (anche in una sessione successiva,
@@ -2043,7 +2043,7 @@
   }
 
   /** @return {object|null} la bozza salvata, o null se non esiste / è
-   *  corrotta (JSON.parse fallito — non deve mai lanciare un errore che
+   *  corrotta (JSON.parse fallito - non deve mai lanciare un errore che
    *  blocca l'apertura del form). */
   function caricaBozza(idStudente, tipo) {
     try {
@@ -2073,7 +2073,7 @@
   /** Se esiste una bozza salvata in precedenza per questo studente+modulo,
    *  la rimette nei campi appena il form è stato costruito. Le caselle di
    *  consenso NON fanno parte della bozza: si azzerano sempre all'apertura
-   *  (azzeraConsensi), per scelta — vanno riespresse ad ogni ripresa. */
+   *  (azzeraConsensi), per scelta - vanno riespresse ad ogni ripresa. */
   function ripristinaBozzaSalvata(tipo) {
     const bozza = caricaBozza(studenteCorrente.idStudente, tipo);
     if (bozza) ripristinaValoriForm(bozza);
@@ -2137,7 +2137,7 @@
         aggiornaStatoInvio();
         bottone.textContent = t('form_bottone_invia');
         if (!risultato.ok) {
-          // Le barriere server (unicità, sequenza, autorizzazione — vedi
+          // Le barriere server (unicità, sequenza, autorizzazione - vedi
           // salvaRisposteModulo in Api.gs) hanno messaggi propri; tutto il
           // resto è la validazione campi già gestita prima dell'invio.
           if (risultato.motivo === 'modulo_gia_compilato') {
@@ -2185,7 +2185,7 @@
   // Autosalvataggio bozza: un solo listener su un contenitore che resta
   // sempre nel DOM (il contenuto interno viene ricostruito ad ogni
   // apertura/cambio lingua, ma l'ascoltatore sul contenitore sopravvive
-  // — funziona anche sugli elementi ricreati grazie alla delega degli
+  // - funziona anche sugli elementi ricreati grazie alla delega degli
   // eventi). 'input' copre le textarea mentre si scrive, 'change' copre
   // la selezione delle pillole radio.
   document.getElementById('corpo-form-modulo').addEventListener('input', pianificaSalvataggioBozza);
@@ -2217,7 +2217,7 @@
     // Controllo di formato lato client (type="email" + checkValidity):
     // solo per dare un messaggio immediato e specifico su un refuso
     // ovvio (manca la @, campo vuoto...), non è una barriera di
-    // sicurezza — cercaTutor lato server resta comunque valido per
+    // sicurezza - cercaTutor lato server resta comunque valido per
     // qualunque stringa e risponde "non_trovato" se non collima.
     if (!valore || !campo.checkValidity()) {
       erroreRicerca.textContent = t('accesso_errore_formato');
@@ -2245,7 +2245,7 @@
       return;
     }
 
-    // stato === 'multipli' — il server manda solo nome + email mascherata
+    // stato === 'multipli' - il server manda solo nome + email mascherata
     // (m***@e***.fr): abbastanza per riconoscersi, niente dati in chiaro
     // su una schermata pre-autenticazione.
     const contenitore = document.getElementById('elenco-candidati-tutor');
@@ -2269,7 +2269,7 @@
     const bottoneInvio = document.getElementById('bottone-invia-link');
     // Non più "Invia link a m***@e***.it": con la ricerca ristretta alla
     // sola email (v. schermata di accesso), il tutor ha già davanti
-    // quello che ha appena scritto — ripeterglielo mascherato è solo
+    // quello che ha appena scritto - ripeterglielo mascherato è solo
     // rumore. Un testo fisso che conferma il riconoscimento basta.
     bottoneInvio.textContent = t('bottone_email_riconosciuta');
     bottoneInvio.style.display = 'block';
@@ -2278,7 +2278,7 @@
 
   /** Riusata da 3 punti: bottone "Invia link" dopo la ricerca, "Reinvia"
    *  nella schermata di attesa, e il recupero rapido da "link già usato"
-   *  (mostraErrore) — stessa richiesta, bottone diverso ogni volta, per
+   *  (mostraErrore) - stessa richiesta, bottone diverso ogni volta, per
    *  questo l'elemento è un parametro invece di un id fisso. */
   function inviaLinkAccesso(bottone) {
     eseguiConCaricamento(bottone, function () {
@@ -2287,7 +2287,7 @@
           // 'invio_troppo_ravvicinato' (cooldown server, vedi Api.gs) viene
           // trattato come un invio riuscito: una mail per quell'indirizzo È
           // partita da meno di 90 secondi, quindi "controlla la casella" è
-          // il messaggio giusto anche qui — nessun errore da mostrare.
+          // il messaggio giusto anche qui - nessun errore da mostrare.
           if (!risultato.ok && risultato.motivo !== 'invio_troppo_ravvicinato') {
             mostraErroreGenerico();
             return;
@@ -2302,7 +2302,7 @@
   /** Il bottone "reinvia" compare solo dopo 5 minuti: prima di allora
    *  offrirlo servirebbe solo a far generare richieste doppie a chi non
    *  ha ancora dato tempo alla prima email di arrivare. L'avviso spam,
-   *  invece, ora è visibile da subito (v. HTML) — niente attesa per un
+   *  invece, ora è visibile da subito (v. HTML) - niente attesa per un
    *  suggerimento che può servire fin dal primo istante. */
   function avviaTimerReinvio() {
     document.getElementById('bottone-reinvia').style.display = 'none';
@@ -2319,7 +2319,7 @@
   // non basta: i testi delle domande sono HTML costruito dinamicamente,
   // non elementi data-i18n statici. Si raccolgono i valori già inseriti,
   // si ricostruisce il form nella nuova lingua, poi si rimettono i valori
-  // — così il tutor non perde le risposte già date.
+  // - così il tutor non perde le risposte già date.
   document.querySelectorAll('.selettore-lingua button').forEach(function (bottone) {
     bottone.onclick = function () {
       const formAperto = tipoModuloCorrente && document.getElementById('schermata-form-modulo').classList.contains('attiva');
