@@ -734,6 +734,13 @@
         <div id="schermata-atterraggio" class="schermata">
           <h1 class="titolo-schermata" data-i18n="atterraggio_titolo">Welcome back</h1>
           <p class="sottotitolo" data-i18n="atterraggio_testo">Click below to access your personal area.</p>
+          <!-- Errore NON fatale sull'atterraggio (oggi: solo
+               'sistema_occupato', lock del server non ottenuto): il token
+               non è stato consumato, quindi si resta su questa schermata
+               e basta ritoccare il bottone. Gli errori fatali (link non
+               valido/usato/scaduto) continuano ad andare su
+               schermata-errore, con il recupero in un tap. -->
+          <div id="errore-atterraggio" class="messaggio-errore" style="display:none;"></div>
           <button id="bottone-atterraggio" class="bottone bottone-primario" data-i18n="atterraggio_bottone">Go to my area</button>
         </div>
 
@@ -899,6 +906,7 @@
       errore_link_gia_usato: 'Ce lien a déjà été utilisé. Demandez-en un nouveau depuis l\'écran d\'accueil.',
       errore_link_scaduto: 'Ce lien a expiré. Demandez-en un nouveau ci-dessous.',
       errore_generico: 'Une erreur est survenue. Réessayez dans un instant.',
+      errore_sistema_occupato: 'Le système est momentanément occupé. Réessayez dans quelques secondes.',
       selezione_studente_titolo: 'Quel étudiant souhaitez-vous évaluer ?',
       moduli_titolo: 'Formulaires d\'évaluation',
       info_studente: 'Étudiant(e)',
@@ -959,6 +967,7 @@
       errore_link_gia_usato: 'Dieser Link wurde bereits verwendet. Fordern Sie über die Startseite einen neuen an.',
       errore_link_scaduto: 'Dieser Link ist abgelaufen. Fordern Sie unten einen neuen an.',
       errore_generico: 'Etwas ist schiefgelaufen. Versuchen Sie es in Kürze erneut.',
+      errore_sistema_occupato: 'Das System ist gerade stark ausgelastet. Versuchen Sie es in wenigen Sekunden erneut.',
       selezione_studente_titolo: 'Welchen Studierenden möchten Sie bewerten?',
       moduli_titolo: 'Bewertungsformulare',
       info_studente: 'Praktikant/in',
@@ -1019,6 +1028,7 @@
       errore_link_gia_usato: 'This link has already been used. Request a new one from the start screen.',
       errore_link_scaduto: 'This link has expired. Request a new one below.',
       errore_generico: 'Something went wrong. Please try again shortly.',
+      errore_sistema_occupato: 'The system is momentarily busy. Please try again in a few seconds.',
       selezione_studente_titolo: 'Which student would you like to evaluate?',
       moduli_titolo: 'Evaluation forms',
       info_studente: 'Trainee',
@@ -1079,6 +1089,7 @@
       errore_link_gia_usato: 'Este enlace ya se ha utilizado. Solicita uno nuevo desde la pantalla inicial.',
       errore_link_scaduto: 'Este enlace ha caducado. Solicita uno nuevo abajo.',
       errore_generico: 'Algo salió mal. Inténtalo de nuevo en unos instantes.',
+      errore_sistema_occupato: 'El sistema está momentáneamente ocupado. Inténtalo de nuevo en unos segundos.',
       selezione_studente_titolo: '¿A qué estudiante quieres evaluar?',
       moduli_titolo: 'Formularios de evaluación',
       info_studente: 'Estudiante',
@@ -1213,7 +1224,8 @@
   // Risolve con i "data" della risposta se ok:true a livello di
   // richiesta; rigetta con la stringa d'errore altrimenti (sessione
   // non valida, azione sconosciuta, errore server...). Un fallimento
-  // di *business* interno all'azione (es. validazione modulo) NON
+  // di *business* interno all'azione (es. validazione modulo, oppure
+  // 'sistema_occupato' quando il server non ottiene il lock) NON
   // rigetta: arriva come dato normale con il proprio {ok:false,...}
   // interno, da controllare nel .then().
   // ------------------------------------------------------------------
@@ -1381,6 +1393,7 @@
   }
 
   function mostraAtterraggio(tokenLink) {
+    document.getElementById('errore-atterraggio').style.display = 'none';
     mostraSchermata('schermata-atterraggio');
     document.getElementById('bottone-atterraggio').onclick = function () {
       completaAutenticazioneConToken(tokenLink, document.getElementById('bottone-atterraggio'));
@@ -1388,12 +1401,26 @@
   }
 
   /** Logica condivisa per completare l'autenticazione col token monouso:
-   *  lo valida, salva la sessione, prosegue. */
+   *  lo valida, salva la sessione, prosegue.
+   *
+   *  'sistema_occupato' (il server non ha ottenuto il lock entro 10s) è
+   *  l'unico esito NON fatale: il token non è stato consumato, quindi si
+   *  resta sulla schermata di atterraggio con un avviso e basta ritoccare
+   *  il bottone. Tutti gli altri motivi (link non valido, già usato,
+   *  scaduto) restano fatali e vanno a schermata-errore, dove il recupero
+   *  in un tap è già previsto. */
   function completaAutenticazioneConToken(token, bottoneDaDisabilitare) {
     eseguiConCaricamento(bottoneDaDisabilitare, function () {
+      const erroreAtterraggio = document.getElementById('errore-atterraggio');
+      erroreAtterraggio.style.display = 'none';
       return chiamaApi('validaTokenMonouso', { tokenMonouso: token })
         .then(function (risultato) {
           if (!risultato.ok) {
+            if (risultato.motivo === 'sistema_occupato') {
+              erroreAtterraggio.textContent = t('errore_sistema_occupato');
+              erroreAtterraggio.style.display = 'block';
+              return;
+            }
             mostraErrore(risultato.motivo, risultato.recupero);
             return;
           }
@@ -2147,6 +2174,11 @@
             mostraErroreForm(t('modulo_richiede_prerequisito').replace('{{MODULO}}', t(CHIAVE_TAPPA[prerequisito])));
           } else if (risultato.motivo === 'studente_non_assegnato') {
             mostraErroreForm(t('errore_generico'));
+          } else if (risultato.motivo === 'sistema_occupato') {
+            // Il server non ha ottenuto il lock: NULLA è stato salvato e
+            // la bozza locale è ancora al suo posto. Basta ripremere
+            // Invia tra qualche istante (i consensi restano spuntati).
+            mostraErroreForm(t('errore_sistema_occupato'));
           } else {
             mostraErroreForm(t('form_errore_campi_obbligatori'));
           }
