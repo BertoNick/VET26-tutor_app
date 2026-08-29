@@ -1229,7 +1229,16 @@
   // rigetta: arriva come dato normale con il proprio {ok:false,...}
   // interno, da controllare nel .then().
   // ------------------------------------------------------------------
+  // Timeout esplicito: fetch() di suo non ne ha, e su rete mobile
+  // straniera una richiesta appesa lascerebbe il bottone disabilitato
+  // per sempre. Alla scadenza la promise rigetta, il bottone torna
+  // attivo (eseguiConCaricamento) e la bozza resta sul dispositivo.
+  const TIMEOUT_API_MS = 45000;
+
   function chiamaApi(azione, payload, tokenSessione) {
+    const controllore = new AbortController();
+    const timer = setTimeout(function () { controllore.abort(); }, TIMEOUT_API_MS);
+
     return fetch(URL_API, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1238,12 +1247,14 @@
         action: azione,
         payload: payload || {},
       }),
+      signal: controllore.signal,
     })
       .then(function (risposta) { return risposta.json(); })
       .then(function (busta) {
         if (!busta.ok) return Promise.reject(busta.error || 'errore_sconosciuto');
         return busta.data;
-      });
+      })
+      .finally(function () { clearTimeout(timer); });
   }
 
   // ------------------------------------------------------------------
