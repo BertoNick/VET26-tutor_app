@@ -824,10 +824,12 @@
 
           <!-- Consensi obbligatori, comuni ai 3 moduli: stanno FUORI da
                #corpo-form-modulo (che viene svuotato e ricostruito a ogni
-               cambio lingua) così lo stato delle caselle sopravvive al
-               re-render; i testi vengono riscritti da aggiornaAreaConsensi().
-               Le caselle si azzerano solo all'APERTURA di un form
-               (apriModulo), mai al cambio lingua. -->
+               apertura e cambio lingua); i testi (pacchetto decl-v1)
+               vengono riscritti da aggiornaAreaConsensi(). Le caselle si
+               azzerano all'APERTURA di un form (apriModulo) E al cambio
+               lingua (decisione 31/08): la dichiarazione riletta in
+               un'altra lingua va riaccettata. -->
+          
           <div class="area-consensi">
             <div class="blocco-consenso">
               <p class="etichetta-consenso" id="etichetta-consenso-firma"></p>
@@ -875,11 +877,18 @@
 
 <script>
   // ------------------------------------------------------------------
+    // ------------------------------------------------------------------
   // TRADUZIONI - pattern: un oggetto per chiave UI, non stringhe
-  // sparse nel codice. Copertura: tutte le schermate, inclusi i testi
-  // di consenso firma/privacy (già rivisti da madrelingua, vedi §9
-  // della documentazione).
+  // sparse nel codice. Copertura: tutte le schermate. I testi di
+  // consenso firma/privacy sono il pacchetto CONGELATO decl-v1
+  // (31/08): il server registra 'decl-v1' su ogni riga firmata, e il
+  // testo mostrato si ricostruisce da versione + lingua + variante
+  // (base/delega) + nome/tutor congelati in riga. Correzioni PRIMA
+  // della prima firma reale restano decl-v1 (revisione madrelingua in
+  // corso); qualunque modifica DOPO richiede decl-v2, qui e in
+  // Firma.gs (VERSIONE_DICHIARAZIONE).
   // ------------------------------------------------------------------
+  
   const TRADUZIONI = {
     fr: {
       marchio: 'Erasmus+ VET · Évaluation Tuteur',
@@ -927,10 +936,10 @@
       form_guida_relazione_titolo: 'Points à aborder',
       form_domanda_disponibilita_riospitare: 'Seriez-vous disponible pour accueillir une autre personne stagiaire Erasmus+ à l\'avenir ?',
       firma_etichetta: 'Signature électronique simple',
-      firma_testo: 'Je déclare vouloir signer le document généré par le système en tant que {{NOME}}. Je suis conscient(e) que mon accès authentifié via le lien personnel envoyé à mon adresse email permet de m\'attribuer la signature, et que l\'intégrité du document est protégée par un identifiant unique de transaction enregistré par l\'établissement, conformément au règlement (UE) n° 910/2014 (eIDAS).',
-      firma_testo_delega: 'Je déclare vouloir signer le document généré par le système en tant que {{NOME}}, pour le compte de {{TUTOR}}, qui est informé de cet envoi par une copie du document signé adressée à l\'adresse email indiquée dans le Learning Agreement. Je suis conscient(e) que mon accès authentifié via le lien personnel envoyé à mon adresse email permet de m\'attribuer la signature, et que l\'intégrité du document est protégée par un identifiant unique de transaction enregistré par l\'établissement, conformément au règlement (UE) n° 910/2014 (eIDAS).',
+      firma_testo: 'Moi, {{NOME}}, je déclare avoir rempli la présente évaluation, en approuver le contenu et avoir l\'autorisation de la délivrer au nom de l\'organisation d\'accueil. J\'ai conscience que mon accès authentifié, par le lien personnel à usage unique envoyé à mon adresse email, permet de m\'attribuer la présente signature, au sens de l\'article 3, point 10, du règlement (UE) n° 910/2014 (eIDAS). J\'ai également conscience que le système enregistre la date et l\'heure, un identifiant unique de soumission et l\'empreinte SHA-256 des données d\'évaluation, qui permet d\'en vérifier l\'intégrité.',
+      firma_testo_delega: 'Moi, {{NOME}}, je déclare avoir rempli la présente évaluation, en approuver le contenu et avoir l\'autorisation de la délivrer au nom de l\'organisation d\'accueil. Je signe par délégation de {{TUTOR}}, qui m\'a donné son autorisation expresse à cette fin et qui recevra une copie du document signé à l\'adresse email indiquée dans le Learning Agreement. J\'ai conscience que mon accès authentifié, par le lien personnel à usage unique envoyé à mon adresse email, permet de m\'attribuer la présente signature, au sens de l\'article 3, point 10, du règlement (UE) n° 910/2014 (eIDAS). J\'ai également conscience que le système enregistre la date et l\'heure, un identifiant unique de soumission et l\'empreinte SHA-256 des données d\'évaluation, qui permet d\'en vérifier l\'intégrité.',
       privacy_etichetta: 'Information sur la protection des données',
-      privacy_testo: 'Je déclare avoir pris connaissance de la note d\'information de l\'établissement sur le traitement des données personnelles ({{LINK}}) et je suis conscient(e) que les données recueillies seront traitées exclusivement aux fins institutionnelles liées à la gestion, à la documentation et au compte rendu du projet Erasmus+, conformément au règlement (UE) 2016/679 (RGPD).',
+      privacy_testo: 'Je prends acte que les données personnelles fournies via ce formulaire (nom, fonction, adresse email et données d\'enregistrement de la signature : date, heure, identifiant de soumission et empreinte SHA-256) sont traitées par l\'ISS "A. Manzoni" di Varese, en qualité de responsable du traitement, pour la gestion, la documentation et le compte rendu du projet Erasmus+, au titre des obligations de justification du programme, et conservées pendant cinq ans après le solde final du projet, conformément au règlement (UE) 2016/679 (RGPD). Toute demande concernant mes données peut être adressée à vapm01000e@istruzione.it. Informations complémentaires : {{LINK}}.',
       privacy_link_testo: 'consultable ici',
       consensi_avviso: 'Cochez les deux cases pour activer l\'envoi.',
       modulo_richiede_prerequisito: 'Complétez d\'abord le formulaire {{MODULO}}.',
@@ -989,10 +998,10 @@
       form_guida_relazione_titolo: 'Zu behandelnde Punkte',
       form_domanda_disponibilita_riospitare: 'Wären Sie bereit, in Zukunft eine weitere Erasmus+ Praktikumsperson aufzunehmen?',
       firma_etichetta: 'Einfache elektronische Signatur',
-      firma_testo: 'Ich erkläre meine Absicht, das vom System erstellte Dokument als {{NOME}} zu unterzeichnen. Mir ist bewusst, dass mein authentifizierter Zugang über den an meine E-Mail-Adresse gesendeten persönlichen Link die Signatur mir zuordnet und dass die Integrität des Dokuments durch eine von der Schule registrierte eindeutige Transaktions-ID geschützt wird, gemäß der Verordnung (EU) Nr. 910/2014 (eIDAS).',
-      firma_testo_delega: 'Ich erkläre meine Absicht, das vom System erstellte Dokument als {{NOME}} im Namen von {{TUTOR}} zu unterzeichnen, die bzw. der über diese Übermittlung durch eine Kopie des unterzeichneten Dokuments an die im Learning Agreement angegebene E-Mail-Adresse informiert wird. Mir ist bewusst, dass mein authentifizierter Zugang über den an meine E-Mail-Adresse gesendeten persönlichen Link die Signatur mir zuordnet und dass die Integrität des Dokuments durch eine von der Schule registrierte eindeutige Transaktions-ID geschützt wird, gemäß der Verordnung (EU) Nr. 910/2014 (eIDAS).',
+      firma_testo: 'Ich, {{NOME}}, erkläre, dass ich diese Bewertung ausgefüllt habe, ihren Inhalt genehmige und berechtigt bin, sie im Namen der aufnehmenden Organisation abzugeben. Mir ist bewusst, dass mein authentifizierter Zugang über den an meine E-Mail-Adresse gesendeten persönlichen Einmal-Link mir diese Signatur zuordnet, im Sinne von Artikel 3 Nummer 10 der Verordnung (EU) Nr. 910/2014 (eIDAS). Mir ist außerdem bewusst, dass das System Datum und Uhrzeit, eine eindeutige Übermittlungskennung sowie den SHA-256-Fingerabdruck der Bewertungsdaten speichert, der die Prüfung ihrer Unversehrtheit ermöglicht.',
+      firma_testo_delega: 'Ich, {{NOME}}, erkläre, dass ich diese Bewertung ausgefüllt habe, ihren Inhalt genehmige und berechtigt bin, sie im Namen der aufnehmenden Organisation abzugeben. Ich unterzeichne in Vertretung von {{TUTOR}}, die bzw. der mich dazu ausdrücklich ermächtigt hat und eine Kopie des unterzeichneten Dokuments an die im Learning Agreement angegebene E-Mail-Adresse erhält. Mir ist bewusst, dass mein authentifizierter Zugang über den an meine E-Mail-Adresse gesendeten persönlichen Einmal-Link mir diese Signatur zuordnet, im Sinne von Artikel 3 Nummer 10 der Verordnung (EU) Nr. 910/2014 (eIDAS). Mir ist außerdem bewusst, dass das System Datum und Uhrzeit, eine eindeutige Übermittlungskennung sowie den SHA-256-Fingerabdruck der Bewertungsdaten speichert, der die Prüfung ihrer Unversehrtheit ermöglicht.',
       privacy_etichetta: 'Datenschutzhinweise',
-      privacy_testo: 'Ich erkläre, die Datenschutzhinweise der Schule zur Verarbeitung personenbezogener Daten ({{LINK}}) gelesen zu haben, und mir ist bewusst, dass die erhobenen Daten ausschließlich für institutionelle Zwecke im Zusammenhang mit der Verwaltung, Dokumentation und Berichterstattung des Erasmus+-Projekts verarbeitet werden, im Einklang mit der Verordnung (EU) 2016/679 (DSGVO).',
+      privacy_testo: 'Ich nehme zur Kenntnis, dass die über dieses Formular übermittelten personenbezogenen Daten (Name, Funktion, E-Mail-Adresse und die Aufzeichnungsdaten der Signatur: Datum, Uhrzeit, Übermittlungskennung und SHA-256-Fingerabdruck) von der ISS "A. Manzoni" di Varese als Verantwortlichem für die Verwaltung, Dokumentation und Berichterstattung des Erasmus+-Projekts verarbeitet und im Rahmen der Nachweispflichten des Programms für fünf Jahre nach der Schlusszahlung des Projekts aufbewahrt werden, im Einklang mit der Verordnung (EU) 2016/679 (DSGVO). Anfragen zu meinen Daten kann ich an vapm01000e@istruzione.it richten. Weitere Informationen: {{LINK}}.',
       privacy_link_testo: 'hier abrufbar',
       consensi_avviso: 'Aktivieren Sie beide Kästchen, um das Absenden zu ermöglichen.',
       modulo_richiede_prerequisito: 'Füllen Sie zuerst das Formular {{MODULO}} aus.',
@@ -1051,10 +1060,10 @@
       form_guida_relazione_titolo: 'Points to address',
       form_domanda_disponibilita_riospitare: 'Would you be willing to host another Erasmus+ trainee in the future?',
       firma_etichetta: 'Simple electronic signature',
-      firma_testo: 'I declare my intention to sign the document generated by the system as {{NOME}}. I am aware that my authenticated access via the personal access link sent to my email address attributes the signature to me, and that the integrity of the document is protected by a unique transaction ID recorded by the school, pursuant to Regulation (EU) No 910/2014 (eIDAS).',
-      firma_testo_delega: 'I declare my intention to sign the document generated by the system as {{NOME}}, on behalf of {{TUTOR}}, who is informed of this submission by a copy of the signed document sent to the email address indicated in the Learning Agreement. I am aware that my authenticated access via the personal access link sent to my email address attributes the signature to me, and that the integrity of the document is protected by a unique transaction ID recorded by the school, pursuant to Regulation (EU) No 910/2014 (eIDAS).',
+      firma_testo: 'I, {{NOME}}, declare that I have completed this evaluation, that I approve its content, and that I am authorised to issue it on behalf of the host organisation. I am aware that my authenticated access, through the personal single-use link sent to my email address, attributes this signature to me, within the meaning of Article 3(10) of Regulation (EU) No 910/2014 (eIDAS). I am also aware that the system records the date and time, a unique submission identifier, and the SHA-256 fingerprint of the assessment data, which makes it possible to verify their integrity.',
+      firma_testo_delega: 'I, {{NOME}}, declare that I have completed this evaluation, that I approve its content, and that I am authorised to issue it on behalf of the host organisation. I sign by delegation of {{TUTOR}}, who has expressly authorised me to do so and who will receive a copy of the signed document at the email address indicated in the Learning Agreement. I am aware that my authenticated access, through the personal single-use link sent to my email address, attributes this signature to me, within the meaning of Article 3(10) of Regulation (EU) No 910/2014 (eIDAS). I am also aware that the system records the date and time, a unique submission identifier, and the SHA-256 fingerprint of the assessment data, which makes it possible to verify their integrity.',
       privacy_etichetta: 'Privacy notice',
-      privacy_testo: 'I declare that I have read the school\'s notice on the processing of personal data ({{LINK}}) and I am aware that the data collected will be processed exclusively for institutional purposes related to the management, documentation and reporting of the Erasmus+ project, in accordance with Regulation (EU) 2016/679 (GDPR).',
+      privacy_testo: 'I acknowledge that the personal data provided through this form (name, role, email address and the signature record data: date, time, submission identifier and SHA-256 fingerprint) are processed by ISS "A. Manzoni" di Varese, as data controller, for the management, documentation and reporting of the Erasmus+ project, under the programme\'s reporting obligations, and are kept for five years after the final balance of the project, in accordance with Regulation (EU) 2016/679 (GDPR). I may address any request concerning my data to vapm01000e@istruzione.it. Further information: {{LINK}}.',
       privacy_link_testo: 'available here',
       consensi_avviso: 'Tick both boxes to enable submission.',
       modulo_richiede_prerequisito: 'Complete the {{MODULO}} form first.',
@@ -1113,10 +1122,10 @@
       form_guida_relazione_titolo: 'Puntos a tratar',
       form_domanda_disponibilita_riospitare: '¿Estaría dispuesto/a a acoger a otra persona en prácticas Erasmus+ en el futuro?',
       firma_etichetta: 'Firma electrónica simple',
-      firma_testo: 'Declaro mi voluntad de firmar el documento generado por el sistema como {{NOME}}. Soy consciente de que mi acceso autenticado mediante el enlace personal enviado a mi dirección de correo electrónico permite atribuirme la firma, y de que la integridad del documento está protegida por un identificador único de transacción registrado por el centro, de conformidad con el Reglamento (UE) n.º 910/2014 (eIDAS).',
-      firma_testo_delega: 'Declaro mi voluntad de firmar el documento generado por el sistema como {{NOME}}, en nombre de {{TUTOR}}, que es informado de este envío mediante una copia del documento firmado remitida a la dirección de email indicada en el Learning Agreement. Soy consciente de que mi acceso autenticado mediante el enlace personal enviado a mi dirección de correo electrónico permite atribuirme la firma, y de que la integridad del documento está protegida por un identificador único de transacción registrado por el centro, de conformidad con el Reglamento (UE) n.º 910/2014 (eIDAS).',
+      firma_testo: 'Yo, {{NOME}}, declaro que he cumplimentado esta evaluación, que apruebo su contenido y que cuento con la autorización para emitirla en nombre de la organización de acogida. Soy consciente de que mi acceso autenticado, mediante el enlace personal de un solo uso enviado a mi dirección de email, permite atribuirme la presente firma, en el sentido del artículo 3, punto 10, del Reglamento (UE) n.º 910/2014 (eIDAS). Soy consciente asimismo de que el sistema registra la fecha y la hora, un identificador único de envío y la huella SHA-256 de los datos de evaluación, que permite verificar su integridad.',
+      firma_testo_delega: 'Yo, {{NOME}}, declaro que he cumplimentado esta evaluación, que apruebo su contenido y que cuento con la autorización para emitirla en nombre de la organización de acogida. Firmo por delegación de {{TUTOR}}, que me ha autorizado expresamente a hacerlo y que recibirá una copia del documento firmado en la dirección de email indicada en el Learning Agreement. Soy consciente de que mi acceso autenticado, mediante el enlace personal de un solo uso enviado a mi dirección de email, permite atribuirme la presente firma, en el sentido del artículo 3, punto 10, del Reglamento (UE) n.º 910/2014 (eIDAS). Soy consciente asimismo de que el sistema registra la fecha y la hora, un identificador único de envío y la huella SHA-256 de los datos de evaluación, que permite verificar su integridad.',
       privacy_etichetta: 'Información sobre protección de datos',
-      privacy_testo: 'Declaro haber leído la información del centro sobre el tratamiento de datos personales ({{LINK}}) y soy consciente de que los datos recogidos se tratarán exclusivamente para fines institucionales relacionados con la gestión, documentación y justificación del proyecto Erasmus+, de conformidad con el Reglamento (UE) 2016/679 (RGPD).',
+      privacy_testo: 'Tomo nota de que los datos personales facilitados a través de este formulario (nombre, función, dirección de email y datos de registro de la firma: fecha, hora, identificador de envío y huella SHA-256) son tratados por el ISS "A. Manzoni" di Varese, como responsable del tratamiento, para la gestión, documentación y justificación del proyecto Erasmus+, en el marco de las obligaciones de justificación del programa, y se conservan durante cinco años desde el saldo final del proyecto, de conformidad con el Reglamento (UE) 2016/679 (RGPD). Puedo dirigir cualquier solicitud relativa a mis datos a vapm01000e@istruzione.it. Más información: {{LINK}}.',
       privacy_link_testo: 'disponible aquí',
       consensi_avviso: 'Marca ambas casillas para poder enviar.',
       modulo_richiede_prerequisito: 'Complete primero el formulario {{MODULO}}.',
@@ -1192,15 +1201,16 @@
   const URL_API = 'https://script.google.com/macros/s/AKfycbyCH3rhWKKi4RBDwPYzhuwtNRQVcXts-sVSavez6g4EiaWsQqMFYrbu40F2AYFuc5WX/exec';
 
   // ------------------------------------------------------------------
-  // Informativa privacy linkata nel consenso in fondo ai form.
-  // ATTENZIONE: questo URL punta all'informativa "genitori e alunni"
-  // dell'Istituto - i tutor aziendali esteri sono una categoria di
-  // interessati DIVERSA. Da sostituire con un'informativa dedicata (o
-  // verificare col referente privacy che quella generale li copra)
-  // prima dell'avvio reale. Vedi anche la nota sopra TRADUZIONI.
+  // Link di approfondimento nel testo privacy (decl-v1, 31/08).
+  // Decisione chiusa (B7 per questa app): il testo della casella è
+  // AUTOPORTANTE (titolare, categorie, finalità, conservazione,
+  // contatto stanno DENTRO la dichiarazione) e questo URL è solo
+  // l'approfondimento alla sezione privacy del sito dell'istituto.
+  // L'URL fa parte del pacchetto decl-v1: cambiarlo dopo la prima
+  // firma reale significa passare a decl-v2.
   // ------------------------------------------------------------------
-  const URL_PRIVACY_POLICY = 'https://cspace.spaggiari.eu/pub/VAIM0001/PRIVACY/annotazione_INFORMATIVA%20GENITORI%20E%20ALUNNI%202025.pdf';
-
+  const URL_PRIVACY_POLICY = 'https://www.liceimanzoni.edu.it/privacy';
+  
   // Stato applicativo in memoria (mai in sessionStorage/cookie - solo
   // il token di sessione vive in localStorage, per sopravvivere ai
   // refresh).
@@ -1797,14 +1807,30 @@
 
   // --- Blocchi HTML riusabili per costruire un form ------------------
 
+  // Tetti client (31/08): stessi valori dei limiti server in Api.gs
+  // (LIMITE_* e il 20000 della relazione). maxlength conta le unità
+  // UTF-16 come String.length lato server: stessa metrica, quindi il
+  // client non può inviare ciò che il server rifiuterebbe. Se un
+  // limite cambia, va cambiato in ENTRAMBI i progetti.
+  const MAXLENGTH_CAMPI = {
+    descrizione_mansione: 2000,
+    compiti_affidati: 5000,
+    consiglio_miglioramento: 5000,
+    testo_relazione: 20000,
+  };
+
   /** Campo di testo libero generico: label + textarea. L'id della textarea
    *  è sempre 'campo-' + chiave, così raccoglierValori()/ripristinaValoriForm()
-   *  possono trovarlo senza bisogno di una mappa a parte. */
+   *  possono trovarlo senza bisogno di una mappa a parte. Il maxlength
+   *  arriva da MAXLENGTH_CAMPI per chiave: nessun cambio ai chiamanti. */
   function campoTestoHtml(chiave, etichetta) {
+    const maxlength = MAXLENGTH_CAMPI[chiave]
+      ? ' maxlength="' + MAXLENGTH_CAMPI[chiave] + '"'
+      : '';
     return (
       '<div class="campo-form">' +
         '<label class="etichetta-campo" for="campo-' + chiave + '">' + etichetta + '</label>' +
-        '<textarea class="campo-testo" id="campo-' + chiave + '"></textarea>' +
+        '<textarea class="campo-testo" id="campo-' + chiave + '"' + maxlength + '></textarea>' +
       '</div>'
     );
   }
@@ -2383,6 +2409,13 @@
       mostraSalutoTutor();
 
       if (formAperto) {
+        // Decisione 31/08 (registro decisioni): il cambio lingua AZZERA
+        // le due caselle di consenso — la riga registra la lingua della
+        // dichiarazione effettivamente letta e spuntata, e una spunta
+        // data in FR non deve sopravvivere a un testo ricostruito in DE.
+        // Le RISPOSTE invece si conservano (ripristinaValoriForm): sono
+        // dati inseriti, non un atto di volontà.
+        azzeraConsensi();
         renderFormModulo(tipoModuloCorrente);
         if (valoriPrecedenti) ripristinaValoriForm(valoriPrecedenti);
       }
